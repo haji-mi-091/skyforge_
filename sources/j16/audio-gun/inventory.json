@@ -1,0 +1,32 @@
+[
+  {
+    "index": 2206,
+    "name": "gsh_30_1_close-002",
+    "file": "2206-gsh_30_1_close-002.wav",
+    "rate": 44100.0,
+    "channels": 2,
+    "bits": 16,
+    "bytes": 8192,
+    "seconds": 0.046439909297052155
+  },
+  {
+    "index": 2316,
+    "name": "gsh_30_1_first_close-001",
+    "file": "2316-gsh_30_1_first_close-001.wav",
+    "rate": 44100.0,
+    "channels": 2,
+    "bits": 16,
+    "bytes": 8192,
+    "seconds": 0.046439909297052155
+  },
+  {
+    "index": 545,
+    "name": "gsh_30_1_last_close-001",
+    "file": "0545-gsh_30_1_last_close-001.wav",
+    "rate": 44100.0,
+    "channels": 2,
+    "bits": 16,
+    "bytes": 89088,
+    "seconds": 0.5050340136054422
+  }
+]

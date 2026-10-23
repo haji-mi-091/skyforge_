@@ -1,0 +1,259 @@
+{
+  "stations": [
+    {
+      "id": "LT",
+      "label": "左翼尖",
+      "x": -7.26,
+      "z": 5.12,
+      "kind": "tip"
+    },
+    {
+      "id": "LO",
+      "label": "左翼外",
+      "x": -5.1,
+      "z": 3.72,
+      "kind": "wing"
+    },
+    {
+      "id": "LI",
+      "label": "左翼内",
+      "x": -3.18,
+      "z": 2.3,
+      "kind": "heavy"
+    },
+    {
+      "id": "LN",
+      "label": "左进气道下",
+      "x": -1.075,
+      "z": 0.65,
+      "kind": "nacelle"
+    },
+    {
+      "id": "CF",
+      "label": "机腹前",
+      "x": 0,
+      "z": -0.3,
+      "kind": "belly"
+    },
+    {
+      "id": "CR",
+      "label": "机腹后",
+      "x": 0,
+      "z": 4.2,
+      "kind": "belly"
+    },
+    {
+      "id": "RN",
+      "label": "右进气道下",
+      "x": 1.075,
+      "z": 0.65,
+      "kind": "nacelle"
+    },
+    {
+      "id": "RI",
+      "label": "右翼内",
+      "x": 3.18,
+      "z": 2.3,
+      "kind": "heavy"
+    },
+    {
+      "id": "RO",
+      "label": "右翼外",
+      "x": 5.1,
+      "z": 3.72,
+      "kind": "wing"
+    },
+    {
+      "id": "RT",
+      "label": "右翼尖",
+      "x": 7.26,
+      "z": 5.12,
+      "kind": "tip"
+    }
+  ],
+  "weapons": {
+    "PL8B": {
+      "label": "PL-8B",
+      "length": 2.95,
+      "r": 0.08,
+      "family": "canard",
+      "span": 0.4
+    },
+    "PL10": {
+      "label": "PL-10",
+      "length": 3,
+      "r": 0.08,
+      "family": "short",
+      "span": 0.31
+    },
+    "PL12A": {
+      "label": "PL-12A",
+      "length": 3.93,
+      "r": 0.101,
+      "family": "radar",
+      "span": 0.32
+    },
+    "PL15": {
+      "label": "PL-15",
+      "length": 4,
+      "r": 0.102,
+      "family": "long",
+      "span": 0.28
+    },
+    "LD10": {
+      "label": "LD-10",
+      "length": 3.93,
+      "r": 0.101,
+      "family": "radar",
+      "span": 0.32
+    },
+    "YJ91A": {
+      "label": "YJ-91A",
+      "length": 4.7,
+      "r": 0.18,
+      "family": "ramjet",
+      "span": 0.55
+    },
+    "KD88A": {
+      "label": "KD-88A",
+      "length": 4.7,
+      "r": 0.18,
+      "family": "cruise",
+      "span": 0.55
+    },
+    "LS6500": {
+      "label": "LS-6 / 500 kg",
+      "length": 3.05,
+      "r": 0.21,
+      "family": "bomb",
+      "span": 0.34
+    },
+    "YINGSIII": {
+      "label": "YINGS-III",
+      "length": 2.35,
+      "r": 0.18,
+      "family": "pod",
+      "span": 0.22
+    }
+  },
+  "loadouts": {
+    "clean": {
+      "label": "净构型",
+      "stores": {}
+    },
+    "racks": {
+      "label": "十个挂点 / 空挂架",
+      "stores": {}
+    },
+    "modern": {
+      "label": "现代制空 · PL-10 / PL-15",
+      "stores": {
+        "LT": "PL10",
+        "LO": "PL15",
+        "LI": "PL15",
+        "LN": "PL15",
+        "CF": "PL15",
+        "CR": "PL15",
+        "RN": "PL15",
+        "RI": "PL15",
+        "RO": "PL15",
+        "RT": "PL10"
+      }
+    },
+    "wiki": {
+      "label": "维基制空 · PL-8B / PL-12A",
+      "stores": {
+        "LT": "PL8B",
+        "LO": "PL12A",
+        "LI": "PL12A",
+        "LN": "PL12A",
+        "CF": "PL12A",
+        "CR": "PL12A",
+        "RN": "PL12A",
+        "RI": "PL12A",
+        "RO": "PL12A",
+        "RT": "PL8B"
+      }
+    },
+    "strike": {
+      "label": "对地展示 · KD-88A / LS-6",
+      "stores": {
+        "LT": "PL10",
+        "LO": "PL12A",
+        "LI": "KD88A",
+        "LN": "LS6500",
+        "CF": "YINGSIII",
+        "CR": "PL12A",
+        "RN": "LS6500",
+        "RI": "KD88A",
+        "RO": "PL12A",
+        "RT": "PL10"
+      }
+    },
+    "sead": {
+      "label": "反辐射展示 · YJ-91A / LD-10",
+      "stores": {
+        "LT": "PL8B",
+        "LO": "LD10",
+        "LI": "YJ91A",
+        "LN": "PL12A",
+        "CF": "YINGSIII",
+        "CR": "PL12A",
+        "RN": "PL12A",
+        "RI": "YJ91A",
+        "RO": "LD10",
+        "RT": "PL8B"
+      }
+    }
+  },
+  "library": {
+    "triangles": 10286,
+    "meshes": 52,
+    "nodes": 62,
+    "materials": 44,
+    "bytes": 502736
+  },
+  "presets": {
+    "racks": {
+      "triangles": 188403,
+      "meshes": 297,
+      "nodes": 393,
+      "materials": 14,
+      "bytes": 6477020
+    },
+    "modern": {
+      "triangles": 198307,
+      "meshes": 349,
+      "nodes": 455,
+      "materials": 64,
+      "bytes": 6949044
+    },
+    "wiki": {
+      "triangles": 198307,
+      "meshes": 349,
+      "nodes": 455,
+      "materials": 64,
+      "bytes": 6949556
+    },
+    "strike": {
+      "triangles": 198975,
+      "meshes": 355,
+      "nodes": 461,
+      "materials": 63,
+      "bytes": 6973536
+    },
+    "sead": {
+      "triangles": 200307,
+      "meshes": 353,
+      "nodes": 459,
+      "materials": 63,
+      "bytes": 7081052
+    }
+  },
+  "note": "Original visual models. Proportions and curated display presets are approximate, not certified load clearance or an exhaustive operational load chart.",
+  "sources": [
+    "https://wiki.warthunder.com/unit/j_16",
+    "https://eng.mod.gov.cn/xb/News_213114/TopStories/4816016.html",
+    "https://www.airuniversity.af.edu/Portals/10/CASI/documents/Research/Infrastructure/2020-11-%2030%20Air-to-Air%20Missiles%20and%20Guidance%20Systems.pdf"
+  ]
+}

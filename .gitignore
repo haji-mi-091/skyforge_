@@ -1,0 +1,28 @@
+# 依赖
+node_modules/
+
+# 缓存与工具产物
+__pycache__/
+*.pyc
+*.cpuprofile
+*.log
+.DS_Store
+Thumbs.db
+*.swp
+
+# 本机工作区、旧式手工备份、截图（契约 §3 W/B 区：可随时清理）
+work/
+backups/
+shots/
+dev/
+shot-*.png
+dev-*.png
+
+# 编辑器 / 智能体本地设置
+.vscode/
+.idea/
+.claude/settings.local.json
+
+# 只在本机保留的 CAD 源文件：游戏不读它，只有 SolidWorks 导出工具用；
+# 贴图化后的产物在 sources/j10c/cad/，已入库
+assets/models/j10c/J10C.STEP

@@ -1,0 +1,32 @@
+# 文本文件在仓库里统一按 LF 存储；工作区不做强制重写（core.autocrlf=false）
+* text=auto
+
+# 启动器必须逐字节原样保存，避免行尾/编码被改写后 cmd 解释出错
+*.cmd -text
+*.vbs -text
+*.ps1 -text
+
+# 二进制资产：不参与换行规范化，也不做文本 diff
+*.glb   binary
+*.gltf  binary
+*.STEP  binary
+*.stp   binary
+*.stl   binary
+*.bin   binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.webp  binary
+*.gif   binary
+*.ico   binary
+*.mp3   binary
+*.wav   binary
+*.ogg   binary
+*.flac  binary
+*.m4a   binary
+*.zip   binary
+*.7z    binary
+*.tgz   binary
+*.pdf   binary
+*.sldprt binary
+*.sldasm binary

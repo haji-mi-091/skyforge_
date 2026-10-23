@@ -1,0 +1,42 @@
+{
+  "file": "f16_cad.glb",
+  "format": "glTF 2.0 binary",
+  "lod": "low",
+  "source": "D:\\F 16\\Body Assy.SLDASM",
+  "generator": "skyforge/tools/build-f16-lowpoly.py",
+  "highDetailBackup": "f16_cad_high.glb",
+  "units": "metres",
+  "dimensions": {
+    "length": 15.06,
+    "width": 10.1,
+    "height": 5.16
+  },
+  "axes": {
+    "forward": "-Z",
+    "up": "+Y",
+    "origin": "bounding-box centre"
+  },
+  "parts": 85,
+  "triangles": 189586,
+  "highDetailTriangles": 465660,
+  "extractedStores": {
+    "aim120c": 4,
+    "aim9m": 4
+  },
+  "materials": [
+    "body",
+    "canopy",
+    "tire",
+    "missile",
+    "metal",
+    "propeller"
+  ],
+  "notes": [
+    "Authoring source; the game uses the baked intake asset f16_flight.glb (node tools/build-f16-intake.mjs).",
+    "f16_cad_high.glb is the original high-detail conversion.",
+    "Body_2 is split into its connected CAD solids so the real flaps and rudder can be animated.",
+    "The main Body_2 solid keeps its original topology to preserve the intake lip and duct.",
+    "The eight supplied missile nodes are detached at load time and reused as mounted/released stores.",
+    "Landing gear and missiles remain separate GLB nodes."
+  ]
+}

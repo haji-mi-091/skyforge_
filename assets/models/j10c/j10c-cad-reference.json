@@ -1,0 +1,35 @@
+{
+  "triangles": 78100,
+  "meshes": 413,
+  "nodes": 437,
+  "materials": 1,
+  "bytes": 7886072,
+  "source": "assets/models/j10c/J10C.STEP (SolidWorks 2020 export, AP203, single part of open B-spline shells)",
+  "sourceScale": "1:10 model in millimetres; converted with factor 0.01 to full-size metres",
+  "transform": {
+    "centreMm": [
+      -0.0010874425325084758,
+      321.66592277047835,
+      817.1286862250502
+    ],
+    "scale": 0.01,
+    "rotation": "180 degrees about Y (source nose +Z -> game nose -Z)"
+  },
+  "bounds": {
+    "min": [
+      -4.867988109588623,
+      -1.4339536428451538,
+      -8.52924919128418
+    ],
+    "max": [
+      4.866344928741455,
+      3.4977340698242188,
+      8.525317192077637
+    ],
+    "size": [
+      9.734333038330078,
+      4.931687712669373,
+      17.054566383361816
+    ]
+  }
+}

@@ -1,0 +1,164 @@
+{
+  "triangles": 189911,
+  "meshes": 263,
+  "nodes": 347,
+  "materials": 12,
+  "bytes": 6491192,
+  "dimensions": {
+    "length": 21.95,
+    "wingspan": 14.7,
+    "groundHeight": 6.36
+  },
+  "bounds": {
+    "min": [
+      -7.349999904632568,
+      -3.0400000083446503,
+      -10.975000381469727
+    ],
+    "max": [
+      7.349999904632568,
+      3.319999933242798,
+      10.975000392198563
+    ],
+    "size": [
+      14.699999809265137,
+      6.359999941587448,
+      21.95000077366829
+    ]
+  },
+  "movableAssemblies": {
+    "canopy": [
+      "canopy_hinge"
+    ],
+    "canopy-actuator": [
+      "canopy_actuator_rod"
+    ],
+    "sensor-gimbal": [
+      "IRST_gimbal"
+    ],
+    "gear-door": [
+      "nose_bay_door_-1",
+      "nose_bay_door_1",
+      "main_bay_-1_door_-1",
+      "main_bay_-1_door_1",
+      "main_bay_1_door_-1",
+      "main_bay_1_door_1"
+    ],
+    "gear-slide": [
+      "nose_gear_stow_slide"
+    ],
+    "gear-fold": [
+      "nose_gear_retraction",
+      "main_L_gear_retraction",
+      "main_R_gear_retraction"
+    ],
+    "gear-spread": [
+      "nose_gear_spread",
+      "main_L_gear_spread",
+      "main_R_gear_spread"
+    ],
+    "shock": [
+      "nose_oleo",
+      "main_L_oleo",
+      "main_R_oleo"
+    ],
+    "wheel-carrier": [
+      "nose_wheel_carrier",
+      "main_L_wheel_carrier",
+      "main_R_wheel_carrier"
+    ],
+    "wheel": [
+      "nose_wheel_L",
+      "nose_wheel_R",
+      "main_L_wheel",
+      "main_R_wheel"
+    ],
+    "gear-brace": [
+      "nose_drag_brace",
+      "main_L_drag_brace",
+      "main_R_drag_brace"
+    ],
+    "probe": [
+      "refueling_probe_hinge"
+    ],
+    "probe-door": [
+      "refueling_probe_door"
+    ],
+    "slat": [
+      "leading_edge_L_0",
+      "leading_edge_R_0"
+    ],
+    "flaperon": [
+      "flaperon_hinge_L",
+      "flaperon_hinge_R"
+    ],
+    "airbrake": [
+      "dorsal_airbrake_hinge"
+    ],
+    "door-link": [
+      "main_bay_-1_offset_hinge_front",
+      "main_bay_-1_offset_hinge_rear",
+      "main_bay_1_offset_hinge_front",
+      "main_bay_1_offset_hinge_rear"
+    ],
+    "intake-ramp": [
+      "intake_L_ramp",
+      "intake_R_ramp"
+    ],
+    "parachute-door": [
+      "parachute_cover_-1",
+      "parachute_cover_1"
+    ],
+    "stabilator": [
+      "stabilator_hinge_L",
+      "stabilator_hinge_R"
+    ],
+    "rudder": [
+      "rudder_hinge_L",
+      "rudder_hinge_R"
+    ],
+    "nozzle-petal": [
+      "nozzle_L_petal_00",
+      "nozzle_L_petal_01",
+      "nozzle_L_petal_02",
+      "nozzle_L_petal_03",
+      "nozzle_L_petal_04",
+      "nozzle_L_petal_05",
+      "nozzle_L_petal_06",
+      "nozzle_L_petal_07",
+      "nozzle_L_petal_08",
+      "nozzle_L_petal_09",
+      "nozzle_L_petal_10",
+      "nozzle_L_petal_11",
+      "nozzle_L_petal_12",
+      "nozzle_L_petal_13",
+      "nozzle_L_petal_14",
+      "nozzle_L_petal_15",
+      "nozzle_R_petal_00",
+      "nozzle_R_petal_01",
+      "nozzle_R_petal_02",
+      "nozzle_R_petal_03",
+      "nozzle_R_petal_04",
+      "nozzle_R_petal_05",
+      "nozzle_R_petal_06",
+      "nozzle_R_petal_07",
+      "nozzle_R_petal_08",
+      "nozzle_R_petal_09",
+      "nozzle_R_petal_10",
+      "nozzle_R_petal_11",
+      "nozzle_R_petal_12",
+      "nozzle_R_petal_13",
+      "nozzle_R_petal_14",
+      "nozzle_R_petal_15"
+    ]
+  },
+  "source": "Supplied J-11B DWG via SolidWorks 2024; cleaned central CAD shell plus rebuilt J-16 features",
+  "units": "metres",
+  "forward": "-Z",
+  "stage": "white model with separate articulated parts",
+  "references": [
+    "https://www.81.cn/bq_208581/jdt_208582/16397209.html",
+    "https://www.mod.go.jp/js/pdf/2025/p20251211_02e.pdf"
+  ],
+  "sizeNote": "Public dimensions are used as modelling targets, not certified engineering measurements. Span is not enlarged uniformly with the forebody."
+}

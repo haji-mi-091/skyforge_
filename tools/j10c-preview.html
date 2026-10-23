@@ -1,0 +1,112 @@
+﻿<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><link rel="icon" href="data:,"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SKYFORGE · 歼‑10C 白模检查</title>
+<style>
+*{box-sizing:border-box}[hidden]{display:none!important}body{margin:0;overflow:hidden;background:#d6dce0;color:#24333b;font:14px system-ui}canvas{display:block}header{position:absolute;top:24px;left:28px;pointer-events:none}h1{font-size:23px;margin:0 0 7px;font-weight:600;letter-spacing:2px}p{margin:5px 0;color:#52636c}#stats{font:12px Consolas,monospace}aside{position:absolute;bottom:18px;left:22px;right:22px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;background:#f6f8f4e8;padding:14px 18px;border:1px solid #a9b6bb;border-radius:9px}label{display:flex;align-items:center;gap:7px;font-size:12px}input[type=range]{width:85px}select,button{font:inherit;color:#24333b;border:1px solid #8c9fa7;border-radius:4px;background:#fff;padding:5px}#part{position:absolute;right:24px;top:24px;text-align:right;font-size:12px;white-space:pre-line;pointer-events:none}#error{color:#a43329}
+#zones{position:absolute;left:28px;top:151px;pointer-events:none;display:grid;gap:9px;background:#f6f8f4ed;border:1px solid #a9b6bb;border-radius:8px;padding:12px 16px;max-width:340px}#zones p{margin:0;font-size:12px}#zones b{display:block;margin-bottom:3px;font-size:14px}#zones i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:8px;vertical-align:-1px}
+</style>
+<header><h1>J‑10C / AIRFRAME STUDY</h1><p>歼‑10C 白模 · 单座鸭式三角翼 · 无挂载</p><p id="stats">正在加载模型…</p><p>拖动旋转 · 滚轮缩放 · 点击部件查看名称</p><p id="error"></p></header>
+<div id="part"></div>
+<section id="zones" aria-label="三个主要工作区" hidden>
+<p><b><i style="background:#4b9fea"></i>01 蓝色 · 机头区</b>雷达罩、座舱、鸭翼、前起落架</p>
+<p><b><i style="background:#f2a347"></i>02 橙色 · 中段区</b>进气道、机翼、前缘襟翼、升降副翼、主起落架</p>
+<p><b><i style="background:#62c396"></i>03 绿色 · 机尾区</b>垂尾、方向舵、腹鳍、减速板、喷口、减速伞舱</p>
+</section>
+<aside id="controls">
+<label>视角<select id="view"><option value="beauty">整体</option><option value="front">前视</option><option value="rear">后视</option><option value="left">侧视</option><option value="top">顶视</option><option value="bottom">腹部</option><option value="cockpit">座舱</option><option value="gear">主起落架</option><option value="nose-below">机头下方</option><option value="nozzle">喷口</option></select></label>
+<label>材质<select id="paint"><option value="bayi">八一涂装</option><option value="zones">三个工作区分色</option><option value="white">白模</option><option value="base">基础灰色蒙皮</option><option value="parts">活动部件分色</option></select></label>
+<label>线框<input id="wire" type="checkbox"></label>
+<label>CAD 叠加<input id="cad" type="checkbox"></label>
+<label>座舱盖<input id="canopy" type="range" min="0" max="1" step=".01" value="0"></label>
+<label>鸭翼<input id="canards" type="range" min="-1" max="1" step=".01" value="0"></label>
+<label>前缘襟翼<input id="slats" type="range" min="0" max="1" step=".01" value="0"></label>
+<label>俯仰<input id="pitch" type="range" min="-1" max="1" step=".01" value="0"></label>
+<label>滚转<input id="roll" type="range" min="-1" max="1" step=".01" value="0"></label>
+<label>方向舵<input id="yaw" type="range" min="-1" max="1" step=".01" value="0"></label>
+<label>减速板<input id="airbrake" type="range" min="0" max="1" step=".01" value="0"></label>
+<label>起落架<input id="gear" type="range" min="0" max="1" step=".01" value="1"></label>
+<label>喷口<input id="nozzle" type="range" min="0" max="1" step=".01" value="0"></label>
+<label>减震支柱<input id="compression" type="range" min="0" max="1" step=".01" value="0"></label>
+<label>前轮转向<input id="steer" type="range" min="-1" max="1" step=".01" value="0"></label>
+<label>机轮旋转<input id="wheelSpin" type="range" min="0" max="6.28" step=".01" value="0"></label>
+<label>减速伞舱盖<input id="parachute" type="range" min="0" max="1" step=".01" value="0"></label>
+<label>受油管<input id="probe" type="range" min="0" max="1" step=".01" value="0"></label>
+<label>加力<input id="afterburner" type="range" min="0" max="1" step=".01" value="0"></label>
+<label>机炮开火<input id="firing" type="checkbox"></label>
+<button id="reset">复位</button></aside>
+<script type="module">
+import * as T from '../vendor/three.module.js';
+import {GLTFLoader} from '../vendor/GLTFLoader.module.js';
+const q=new URLSearchParams(location.search),scene=new T.Scene();scene.background=new T.Color('#a2b0ba');
+const renderer=new T.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});renderer.setPixelRatio(1);renderer.setSize(innerWidth,innerHeight);renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=.9;
+document.body.appendChild(renderer.domElement);
+const camera=new T.PerspectiveCamera(34,innerWidth/innerHeight,.05,300);
+scene.add(new T.HemisphereLight(0xffffff,0x5b6670,.65));
+for(const [position,intensity,color]of [[[8,15,-10],1.65,0xfff5e6],[[-10,4,6],.65,0xe1ecff],[[0,-8,5],.35,0xffffff]]){const l=new T.DirectionalLight(color,intensity);l.position.set(...position);scene.add(l);}
+const grid=new T.GridHelper(30,30,0x768e9d,0xbac5cc);grid.position.y=-2.305;scene.add(grid);
+const defaults={canopy:0,canards:0,slats:0,pitch:0,roll:0,yaw:0,airbrake:0,gear:1,nozzle:0,compression:0,steer:0,wheelSpin:0,parachute:0,probe:0,afterburner:0,firing:0},state={...defaults};
+let root,cadRef,modelModule,effectsModule,target=new T.Vector3(),view='beauty',drag;
+const clock=new T.Clock();
+const presets={beauty:[[0,0,0],[13,7.5,-15]],front:[[0,.3,0],[0,.8,-22]],rear:[[0,.3,0],[0,1.2,22]],left:[[0,.3,0],[24,0,0]],
+ top:[[0,0,0],[0,33,.001]],bottom:[[0,-.4,0],[0,-33,.001]],cockpit:[[0,.6,-4.3],[2.8,2.3,-5.6]],gear:[[1,-1.2,.8],[5.5,-1.6,-3.5]],
+ 'nose-below':[[0,-1.1,-2.4],[1.6,-3.4,-5.8]],nozzle:[[0,-.2,7],[3.2,.8,11.5]]};
+function setView(value){
+ view=value;const [aim,offset]=presets[value]||presets.beauty;target.set(...aim);
+ camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();camera.position.copy(target).add(new T.Vector3(...offset));
+ camera.up.set(0,1,0);if(value==='top')camera.up.set(0,0,-1);if(value==='bottom')camera.up.set(0,0,-1);camera.lookAt(target);
+ document.getElementById('view').value=value;render();
+}
+// Draw on the next animation frame whenever something changed. A single draw at
+// load time can be lost if the page is still hidden or being laid out (blank
+// canvas until the first drag), so size changes, becoming visible and the
+// first second after load all request frames as well.
+let dirty=true,warmFrames=60;
+// Immediate draw as before (scripts read renderer.info right after a change),
+// plus the frame loop below as the safety net.
+function render(){if(innerWidth&&innerHeight){renderer.render(scene,camera);dirty=false;}else dirty=true;}
+function frame(){
+ const w=innerWidth,h=innerHeight,c=renderer.domElement;
+ if(w&&h&&(c.clientWidth!==w||c.clientHeight!==h)){renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();dirty=true;}
+ // afterburner plume / muzzle flash animate continuously while active
+ if(effectsModule&&root&&effectsModule.updateJ10CEffects(root,state,clock.getElapsedTime()))dirty=true;
+ if((dirty||warmFrames>0)&&w&&h){renderer.render(scene,camera);dirty=false;}
+ if(warmFrames>0)warmFrames--;
+ requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){warmFrames=30;dirty=true;}});
+if(location.protocol==='file:')document.getElementById('error').textContent='请通过本地服务器打开：先运行 node server.mjs 4173，再访问 http://127.0.0.1:4173/tools/j10c-preview.html（直接双击 html 会被浏览器拦截模块加载）';
+function setState(values={}){Object.assign(state,values);if(modelModule)modelModule.poseJ10C(root,state);
+ if(effectsModule)effectsModule.updateJ10CEffects(root,state,clock.getElapsedTime());
+ for(const key in state){const input=document.getElementById(key);if(!input)continue;if(input.type==='checkbox')input.checked=!!state[key];else input.value=state[key];}render();}
+function setPaint(mode){if(modelModule)modelModule.paintJ10C(root,mode);document.getElementById('paint').value=mode;document.getElementById('zones').hidden=mode!=='zones'||q.get('hud')==='0';root?.traverse(o=>{if(o.isMesh)o.material.wireframe=document.getElementById('wire').checked;});render();}
+async function setCad(on){
+ if(on&&!cadRef){cadRef=(await new GLTFLoader().loadAsync('../assets/models/j10c/j10c-cad-reference.glb')).scene;
+  const m=new T.MeshBasicMaterial({color:0xd0402e,wireframe:true,transparent:true,opacity:.18});cadRef.traverse(o=>{if(o.isMesh)o.material=m;});scene.add(cadRef);}
+ if(cadRef)cadRef.visible=on;document.getElementById('cad').checked=on;render();
+}
+try{
+ modelModule=await import('../src/visual/J10CModel.js');root=await modelModule.loadJ10CModel();
+ scene.add(root);root.updateMatrixWorld(true);
+ let triangles=0,meshes=0;root.traverse(o=>{if(o.isMesh){triangles+=(o.geometry.index?.count||o.geometry.attributes.position.count)/3;meshes++;}});
+ effectsModule=await import('../src/visual/J10CEffects.js');effectsModule.addJ10CEffects(root);
+ const size=new T.Box3().setFromObject(root).getSize(new T.Vector3());
+ document.getElementById('stats').textContent=`${triangles.toLocaleString()} triangles · ${meshes} meshes · 机长 ${size.z.toFixed(2)} m / 翼展 ${size.x.toFixed(2)} m / 高 ${size.y.toFixed(2)} m`;
+ if(q.get('hud')==='0'){document.querySelector('header').hidden=true;document.getElementById('controls').hidden=true;document.getElementById('part').hidden=true;}
+ grid.visible=q.get('grid')!=='0';
+ setPaint(q.get('paint')||'bayi');setState({gear:Number(q.get('gear')??1)});setView(q.get('view')||'beauty');
+ if(q.get('cad')==='1')await setCad(true);
+ window.__J10C_PREVIEW__={root,scene,renderer,camera,state,setState,setPaint,setView,setCad,render,stats:{triangles,meshes,size:size.toArray()}};window.__READY__=true;
+}catch(error){document.getElementById('error').textContent=error.message;console.error(error);}
+for(const key of Object.keys(state)){const input=document.getElementById(key);
+ if(input.type==='checkbox')input.onchange=e=>setState({[key]:e.target.checked?1:0});else input.oninput=e=>setState({[key]:Number(e.target.value)});}
+document.getElementById('view').onchange=e=>setView(e.target.value);document.getElementById('paint').onchange=e=>setPaint(e.target.value);
+document.getElementById('wire').onchange=e=>{root.traverse(o=>{if(o.isMesh)o.material.wireframe=e.target.checked;});render();};
+document.getElementById('cad').onchange=e=>setCad(e.target.checked);
+document.getElementById('reset').onclick=()=>setState(defaults);
+renderer.domElement.onpointerdown=e=>{drag={x:e.clientX,y:e.clientY,initialX:e.clientX,initialY:e.clientY};renderer.domElement.setPointerCapture(e.pointerId);};
+renderer.domElement.onpointermove=e=>{if(!drag)return;const s=new T.Spherical().setFromVector3(camera.position.clone().sub(target));s.theta-=(e.clientX-drag.x)*.006;s.phi=T.MathUtils.clamp(s.phi+(e.clientY-drag.y)*.006,.025,Math.PI-.025);camera.up.set(0,1,0);camera.position.copy(target).add(new T.Vector3().setFromSpherical(s));camera.lookAt(target);drag.x=e.clientX;drag.y=e.clientY;render();};
+renderer.domElement.onpointerup=e=>{if(drag&&Math.hypot(e.clientX-drag.initialX,e.clientY-drag.initialY)<4){const ray=new T.Raycaster();ray.setFromCamera(new T.Vector2(e.clientX/innerWidth*2-1,1-e.clientY/innerHeight*2),camera);const hit=ray.intersectObject(root,true)[0];document.getElementById('part').textContent=hit?hit.object.name+'\n'+JSON.stringify(hit.object.userData.exportExtras||hit.object.userData,null,1).slice(0,300):'';}drag=null;};
+renderer.domElement.onwheel=e=>{e.preventDefault();const offset=camera.position.clone().sub(target).multiplyScalar(Math.exp(e.deltaY*.001));offset.setLength(T.MathUtils.clamp(offset.length(),1.2,60));camera.position.copy(target).add(offset);camera.lookAt(target);render();};
+addEventListener('resize',()=>{warmFrames=10;render();});
+</script></html>

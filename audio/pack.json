@@ -1,0 +1,11 @@
+{
+  "files": {
+    "gun": "wt-sfx/m61_close_loop.wav",
+    "missile": "wt-sfx/missile_start_med-001.wav",
+    "engineCruise": "wt-sfx/jet_nozzle_cruise.wav",
+    "engineThrust": "wt-sfx/jet_nozzle_thrust.wav",
+    "engineCockpitLeft": "wt-sfx/jet_cockpit_01_l.wav",
+    "engineCockpitRight": "wt-sfx/jet_cockpit_01_r.wav",
+    "engineAfterburner": "wt-sfx/afterburner_loop.wav"
+  }
+}

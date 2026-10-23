@@ -1,0 +1,85 @@
+{
+  "note": "Decoded with installed FMOD runtime; original banks are read-only inputs. Su-27 named engine recordings are a sound substitute, not a claimed WS-10B recording. 30mm gun uses GSh-30-1 clips, not M61.",
+  "sources": [
+    {
+      "source": "D:/SteamLibrary/steamapps/common/War Thunder/sound/aircraft_engines.assets.bank",
+      "sourceBankSha256": "2907250775f0690f2b62191dc89f8132e4948385b2141c09c08fce3efb9d49fe",
+      "bank": 0,
+      "index": 1202,
+      "sample": "idle_su_27_exterior",
+      "file": "1202-idle_su_27_exterior.wav",
+      "seconds": 8,
+      "sha256": "c423c25286dc65e1eacde7aac3e98bab1f38d9559d83ae6309982aac684b8bfc"
+    },
+    {
+      "source": "D:/SteamLibrary/steamapps/common/War Thunder/sound/aircraft_engines.assets.bank",
+      "sourceBankSha256": "2907250775f0690f2b62191dc89f8132e4948385b2141c09c08fce3efb9d49fe",
+      "bank": 0,
+      "index": 523,
+      "sample": "max_su_27_exterior",
+      "file": "0523-max_su_27_exterior.wav",
+      "seconds": 8,
+      "sha256": "1d11ca2c3b72bd2ac6555a28b1d5b7c5aee152006d0c2040252cdf6a815059b0"
+    },
+    {
+      "source": "D:/SteamLibrary/steamapps/common/War Thunder/sound/aircraft_engines.assets.bank",
+      "sourceBankSha256": "2907250775f0690f2b62191dc89f8132e4948385b2141c09c08fce3efb9d49fe",
+      "bank": 0,
+      "index": 386,
+      "sample": "afterburner_su_27_exterior",
+      "file": "0386-afterburner_su_27_exterior.wav",
+      "seconds": 8,
+      "sha256": "6b0ee20d07241a5de9cdfdea5e71bb985bde800bb3d7e62bd7010e0ce1756b55"
+    },
+    {
+      "source": "D:/SteamLibrary/steamapps/common/War Thunder/sound/aircraft_engines.assets.bank",
+      "sourceBankSha256": "2907250775f0690f2b62191dc89f8132e4948385b2141c09c08fce3efb9d49fe",
+      "bank": 0,
+      "index": 780,
+      "sample": "max_su_27_cockpit_l",
+      "file": "0780-max_su_27_cockpit_l.wav",
+      "seconds": 8,
+      "sha256": "0306af9bff77eb17fefb61431edd32ee541fd713719e61f500bc996195d15e79"
+    },
+    {
+      "source": "D:/SteamLibrary/steamapps/common/War Thunder/sound/aircraft_engines.assets.bank",
+      "sourceBankSha256": "2907250775f0690f2b62191dc89f8132e4948385b2141c09c08fce3efb9d49fe",
+      "bank": 0,
+      "index": 841,
+      "sample": "max_su_27_cockpit_r",
+      "file": "0841-max_su_27_cockpit_r.wav",
+      "seconds": 8,
+      "sha256": "ea84291887ff09c65b6b2d11c75d791e60186bda79a9d20c411d36eb0f46dcc4"
+    },
+    {
+      "source": "D:/SteamLibrary/steamapps/common/War Thunder/sound/aircraft_guns.assets.bank",
+      "sourceBankSha256": "950f96fa80e335b923a7dd714c39a825836d85fe3b9e8edca13a739418870f05",
+      "bank": 1,
+      "index": 2206,
+      "sample": "gsh_30_1_close-002",
+      "file": "2206-gsh_30_1_close-002.wav",
+      "seconds": 0.046439909297052155,
+      "sha256": "32d57bf1e42b6af68db352a70e9b2b4e570e87964ec14f4c0c89b5283cf4785c"
+    },
+    {
+      "source": "D:/SteamLibrary/steamapps/common/War Thunder/sound/aircraft_guns.assets.bank",
+      "sourceBankSha256": "950f96fa80e335b923a7dd714c39a825836d85fe3b9e8edca13a739418870f05",
+      "bank": 1,
+      "index": 2316,
+      "sample": "gsh_30_1_first_close-001",
+      "file": "2316-gsh_30_1_first_close-001.wav",
+      "seconds": 0.046439909297052155,
+      "sha256": "265c35d5a4fc73ca1bd9b0b9d62100dae6409fa3d286a7d5bb45edc320854293"
+    },
+    {
+      "source": "D:/SteamLibrary/steamapps/common/War Thunder/sound/aircraft_guns.assets.bank",
+      "sourceBankSha256": "950f96fa80e335b923a7dd714c39a825836d85fe3b9e8edca13a739418870f05",
+      "bank": 1,
+      "index": 545,
+      "sample": "gsh_30_1_last_close-001",
+      "file": "0545-gsh_30_1_last_close-001.wav",
+      "seconds": 0.5050340136054422,
+      "sha256": "3e585c77a65299e655a4387d8b78e856db5a03c1b6024044e53bf7122f10920a"
+    }
+  ]
+}

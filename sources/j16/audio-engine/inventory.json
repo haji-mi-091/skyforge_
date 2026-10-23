@@ -1,0 +1,52 @@
+[
+  {
+    "index": 1202,
+    "name": "idle_su_27_exterior",
+    "file": "1202-idle_su_27_exterior.wav",
+    "rate": 44100.0,
+    "channels": 2,
+    "bits": 16,
+    "bytes": 1411200,
+    "seconds": 8.0
+  },
+  {
+    "index": 523,
+    "name": "max_su_27_exterior",
+    "file": "0523-max_su_27_exterior.wav",
+    "rate": 48000.0,
+    "channels": 2,
+    "bits": 16,
+    "bytes": 1536000,
+    "seconds": 8.0
+  },
+  {
+    "index": 386,
+    "name": "afterburner_su_27_exterior",
+    "file": "0386-afterburner_su_27_exterior.wav",
+    "rate": 48000.0,
+    "channels": 2,
+    "bits": 16,
+    "bytes": 1536000,
+    "seconds": 8.0
+  },
+  {
+    "index": 780,
+    "name": "max_su_27_cockpit_l",
+    "file": "0780-max_su_27_cockpit_l.wav",
+    "rate": 44100.0,
+    "channels": 1,
+    "bits": 16,
+    "bytes": 705600,
+    "seconds": 8.0
+  },
+  {
+    "index": 841,
+    "name": "max_su_27_cockpit_r",
+    "file": "0841-max_su_27_cockpit_r.wav",
+    "rate": 44100.0,
+    "channels": 1,
+    "bits": 16,
+    "bytes": 705600,
+    "seconds": 8.0
+  }
+]

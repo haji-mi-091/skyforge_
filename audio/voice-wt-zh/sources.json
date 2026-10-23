@@ -1,0 +1,258 @@
+{
+  "source": "D:\\SteamLibrary\\steamapps\\common\\War Thunder\\sound\\aircraft_gui.assets.bank",
+  "sha256": "5a723411100f8eb808eeaf472683600dd20eac25c6c53d5a38784952c0055ee4",
+  "samples": [
+    {
+      "key": "vws_critical_altitude",
+      "bank": 0,
+      "index": 1,
+      "seconds": 0.8987755102040816,
+      "sha256": "353f6158a6c82dc65f7a35b7fbc5acccc11e59a5cc85c1e20f4e9833e2492681"
+    },
+    {
+      "key": "vws_over_g",
+      "bank": 0,
+      "index": 3,
+      "seconds": 0.7563718820861678,
+      "sha256": "1a4282272689ebe5fa8f7176446352f0b42601dd530429b4150c2fab247fae95"
+    },
+    {
+      "key": "vws_engine_failure",
+      "bank": 0,
+      "index": 4,
+      "seconds": 1.1063038548752835,
+      "sha256": "fdba79e1db438819cca21d626b85bde4768930ad787a905d5c0c4c3ca7a1b002"
+    },
+    {
+      "key": "vws_left",
+      "bank": 0,
+      "index": 5,
+      "seconds": 0.934875283446712,
+      "sha256": "adabe767b2f6cbfa86c069b7a9d9d84559baac0163f5c8d2eb6f247f56629946"
+    },
+    {
+      "key": "vws_engine_fire_right",
+      "bank": 0,
+      "index": 17,
+      "seconds": 0.9912471655328798,
+      "sha256": "44daa55a00fbebc82a8a66feb69541e2c247c391f8e384faded7b06c7c12dff0"
+    },
+    {
+      "key": "vws_critical_angle",
+      "bank": 0,
+      "index": 21,
+      "seconds": 0.906984126984127,
+      "sha256": "8622c9582490095265953023190cc75726aa1be5b5637fede1b6959f27f34797"
+    },
+    {
+      "key": "vws_engine_fire",
+      "bank": 0,
+      "index": 22,
+      "seconds": 1.196734693877551,
+      "sha256": "e67832dd58278d21ca0ef8a2a8449be7965dd8af2123adc5657bc659bf3e3751"
+    },
+    {
+      "key": "vws_altitude",
+      "bank": 0,
+      "index": 23,
+      "seconds": 0.5146031746031746,
+      "sha256": "5062a96281efaa9dbfe9ce3dd420691af1e37f48d2cd4fe8eb2e1b71b95fae2a"
+    },
+    {
+      "key": "vws_right_engine_failure",
+      "bank": 0,
+      "index": 38,
+      "seconds": 0.9342857142857143,
+      "sha256": "0de6238034a5f6b40c2fe2927ad7e51d674c5ac6dcd8e284619e1a70d3eb5734"
+    },
+    {
+      "key": "vws_engine_fire_left",
+      "bank": 0,
+      "index": 39,
+      "seconds": 0.9720181405895691,
+      "sha256": "1635c7c970819137e5e41e1422a9810f64db1e585a29d138e2db7afa413fba9e"
+    },
+    {
+      "key": "vws_missile_launch",
+      "bank": 0,
+      "index": 79,
+      "seconds": 0.9456235827664399,
+      "sha256": "aa6f4a90c064c01ecb4c1a4dc939c43f6c5bd13dc39c7affedd9c9fd374b5106"
+    },
+    {
+      "key": "vws_generator_failure",
+      "bank": 0,
+      "index": 94,
+      "seconds": 1.1494784580498867,
+      "sha256": "f1fd838037da182278ef5b68174a139fc7e1662a5a09d4f95fdf73f8e961bf8c"
+    },
+    {
+      "key": "vws_behind",
+      "bank": 0,
+      "index": 103,
+      "seconds": 0.949342403628118,
+      "sha256": "6213bf2f22335a3458b26723a07eb81d7b313a9180119182379147b57c46b08c"
+    },
+    {
+      "key": "vws_attack_air",
+      "bank": 0,
+      "index": 106,
+      "seconds": 1.3528798185941042,
+      "sha256": "542568d84b962baf2ce381a66308ea75f7e9190e13973f74e01cfd61b8031438"
+    },
+    {
+      "key": "vws_dangerous_vibration",
+      "bank": 0,
+      "index": 114,
+      "seconds": 0.9611791383219954,
+      "sha256": "98bd9420f17ace753a87633850eb884d252c455adb0bc50cdd90ffb6cb56a763"
+    },
+    {
+      "key": "vws_airbrake",
+      "bank": 0,
+      "index": 118,
+      "seconds": 1.222312925170068,
+      "sha256": "94a3675cd06d742a1b8a5842decf5760642568e3f0cd975134d92df3783ec08b"
+    },
+    {
+      "key": "vws_left_engine_failure",
+      "bank": 0,
+      "index": 124,
+      "seconds": 0.9666666666666667,
+      "sha256": "e4d0232144f9ee5ab96b24826f48df409f708deb586e91d369c67f4132f3d494"
+    },
+    {
+      "key": "vws_attack_gepard",
+      "bank": 0,
+      "index": 136,
+      "seconds": 1.3559183673469388,
+      "sha256": "fa77aec210b99193dfad496dee1876ea2ab741dbf3a346ba51fceba2d3cd7bf6"
+    },
+    {
+      "key": "vws_critical_speed",
+      "bank": 0,
+      "index": 137,
+      "seconds": 0.9312471655328798,
+      "sha256": "58bf2669d9ce2b068e0f2cf0a5e315d69aaf78f19a8ffda70adff607ffa8ec1c"
+    },
+    {
+      "key": "vws_pull_up",
+      "bank": 0,
+      "index": 163,
+      "seconds": 0.6383673469387755,
+      "sha256": "d6a8299884ef1609682ac1d6fe3c26515d05e91a0de9e04ac7c0c88df12f5e97"
+    },
+    {
+      "key": "vws_dangerous_close",
+      "bank": 0,
+      "index": 168,
+      "seconds": 0.9382766439909297,
+      "sha256": "857c42ed351e8f1ea46967a880efe876281a434b214d2ebd42bda3e648855c05"
+    },
+    {
+      "key": "vws_right",
+      "bank": 0,
+      "index": 169,
+      "seconds": 0.993061224489796,
+      "sha256": "b611d83e84c7205428347ac7074d6dd0f3c7dba0edc0c37859e22f9815473e75"
+    },
+    {
+      "key": "vws_gear_down",
+      "bank": 0,
+      "index": 174,
+      "seconds": 1.1738775510204082,
+      "sha256": "46d52cce0e55d37c97f9545a9b31f113169759eaa0405fff51cfb7b4fdcedd66"
+    },
+    {
+      "key": "vws_ahead",
+      "bank": 0,
+      "index": 205,
+      "seconds": 1.1470748299319729,
+      "sha256": "e944fec882a2561d9d751202c80395fa7906b3a88127e6a007162766d697bcb9"
+    },
+    {
+      "key": "vws_fuel_low",
+      "bank": 0,
+      "index": 209,
+      "seconds": 0.8467120181405896,
+      "sha256": "7d6b71af3afa64467c08871d71ccbd4eb027d2e9118a8a4d3f399d43c0a1afc7"
+    },
+    {
+      "key": "vws_attack_sam",
+      "bank": 0,
+      "index": 214,
+      "seconds": 1.3123809523809524,
+      "sha256": "fad4e9127966dab7cd9ccaf56ec4e33ce6a1fe01572dfb83e4ddd154fcc845e5"
+    },
+    {
+      "key": "vws_high",
+      "bank": 0,
+      "index": 217,
+      "seconds": 0.2709297052154195,
+      "sha256": "798e20ae45949321798b425e9cc7f750f742a3e3937347313537d57c51a41206"
+    },
+    {
+      "key": "vws_right_engine_overheat",
+      "bank": 0,
+      "index": 218,
+      "seconds": 0.916734693877551,
+      "sha256": "2c4dd4dccc8991e5e3bd90ef2a2315cefedcbd8a7a85bf1eaa06e144faec6cc3"
+    },
+    {
+      "key": "vws_fire",
+      "bank": 0,
+      "index": 219,
+      "seconds": 0.9538775510204082,
+      "sha256": "620befeaf32d2bec02570d94c20defb90b15aba38d7bd53ceadf74dcf0dc8f0d"
+    },
+    {
+      "key": "vws_check_gear",
+      "bank": 0,
+      "index": 222,
+      "seconds": 1.2319274376417233,
+      "sha256": "57e75c906fd9f7931db25be39fc07b15deb8b6f6e6e26999d9af97e4fb2dc241"
+    },
+    {
+      "key": "vws_warning",
+      "bank": 0,
+      "index": 225,
+      "seconds": 0.5870294784580499,
+      "sha256": "20078b648579535b438f82ecd4e49a8c3ea8d8a152f7117f4f65af96e2531566"
+    },
+    {
+      "key": "vws_lock",
+      "bank": 0,
+      "index": 227,
+      "seconds": 0.6285714285714286,
+      "sha256": "291236c252deb7cb77e7af81af7bf953b01672cb05f09a077097eabdce5d701f"
+    },
+    {
+      "key": "vws_bingo",
+      "bank": 0,
+      "index": 230,
+      "seconds": 0.8698866213151928,
+      "sha256": "3e029ac9a3a42ca822edf6db2751c3663ea06ed3e0dce3394df241bee482d5ce"
+    },
+    {
+      "key": "vws_attack_stinger",
+      "bank": 0,
+      "index": 234,
+      "seconds": 1.590204081632653,
+      "sha256": "aed016e1ff0e8ca5d97f8990a49edfd6a3ad6ee67977a6dd334b0d633297c091"
+    },
+    {
+      "key": "vws_jammer",
+      "bank": 0,
+      "index": 241,
+      "seconds": 0.47619047619047616,
+      "sha256": "381bbcc2fee16888d89d837fa9b01468d1ff90e804820aec72afa7be8d329e27"
+    },
+    {
+      "key": "vws_engine_overheat",
+      "bank": 0,
+      "index": 249,
+      "seconds": 1.1106122448979592,
+      "sha256": "c9575882f2c3f0123639b5fbfc211ff930302f42bb1579fa4a1a0912fea29176"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SKYFORGE · 音效试听</title>
+<style>
+body{background:#10191c;color:#def2e5;font:16px system-ui;margin:40px auto;max-width:900px;padding:0 24px}h1{font-size:28px}p{color:#a8c0b5;line-height:1.7}section{padding:22px;border:1px solid #334f48;margin:20px 0;border-radius:10px}label{display:flex;align-items:center;justify-content:space-between;gap:24px;margin:18px 0}button,select{background:#203c35;color:#e5fff0;padding:11px 16px;border:1px solid #648e79;border-radius:5px;font:inherit;cursor:pointer}button:active{background:#51765f}input[type=range]{width:55%}.buttons{display:flex;flex-wrap:wrap;gap:12px}#status{min-height:26px;color:#aee4bd}small{display:block;color:#9bb9ab;margin-top:12px}a{color:#b1e7c5}
+</style>
+<h1>SKYFORGE · 音效试听</h1>
+<p>先启用声音，再调整转速、加力和视角。人声使用与游戏相同的优先级和冷却规则。</p>
+<button id="enable">启用声音</button> <a href="/">返回游戏</a>
+<p id="status">尚未启用</p>
+<section><h2>发动机与机炮</h2>
+<label>发动机转速<input id="spool" type="range" min="0" max="1" step="0.01" value="0.55"></label>
+<label>加力<input id="ab" type="range" min="0" max="1" step="0.01" value="0"></label>
+<label>座舱视角<input id="cockpit" type="checkbox"></label>
+<label>发动机音量<input id="volume" type="range" min="0" max="1" step="0.01" value="0.8"></label>
+<button id="gun">按住试听 M61 机炮</button>
+<small>音效提取自本机战争雷霆的 aircraft_engines / aircraft_guns 声音库。</small>
+</section>
+<section><h2>人声告警</h2>
+<label>人声<select id="voice"></select></label>
+<div class="buttons" id="phrases"></div>
+<small>中文女声1的少数事件没有专用录音，使用同一套中文“警告”短句；游戏HUD保留具体原因。</small>
+</section>
+<script type="module">
+import { AudioEngine } from '../src/core/Audio.js';
+import { VOICE_PACKS } from '../src/data/voicePacks.js';
+const audio=new AudioEngine(),$=id=>document.getElementById(id);
+for(const [id,pack] of Object.entries(VOICE_PACKS))$('voice').add(new Option(pack.label,id));
+const phrases={rwr_lock:'敌跟踪',rwr_missile:'敌导弹',vws_attack_air:'空中雷达告警',vws_lock:'我方锁定目标',vws_pull_up:'拉起',vws_over_g:'注意过载',vws_fuel_low:'燃油不足',vws_gear_down:'起落架放下',vws_airbrake:'减速板',vws_check_mech:'检查机体',vws_missile_launch:'导弹发射',vws_chaff_flare_low:'干扰弹不足'};
+for(const [key,label] of Object.entries(phrases)){
+ const b=document.createElement('button');b.textContent=label;
+ b.onclick=()=>audio.callout(key,label,{priority:true});$('phrases').append(b);
+}
+const ready=async()=>{await Promise.all([audio._loadVoicePack(),audio._wtTonePromise,audio._externalPromise]);$('status').textContent=`${VOICE_PACKS[audio.voicePack].label} · ${audio.voiceStatus==='ready'?'已就绪':'加载失败'}`;};
+$('enable').onclick=async()=>{audio.init();audio.resume();await ready();};
+$('voice').onchange=async()=>{await audio.setVoicePack($('voice').value);await ready();};
+let firing=false;
+$('gun').onpointerdown=e=>{firing=true;$('gun').setPointerCapture(e.pointerId);};
+const stopGun=()=>{firing=false;};
+$('gun').onpointerup=stopGun;$('gun').onpointercancel=stopGun;$('gun').onlostpointercapture=stopGun;
+window.addEventListener('blur',stopGun);
+let previous=performance.now();
+function frame(t){const dt=Math.min(.1,(t-previous)/1000);previous=t;audio.setEngineVolume(+$('volume').value);audio.update(dt,{spool:+$('spool').value,afterburner:+$('ab').value,cockpit:$('cockpit').checked,gunFiring:firing,tas:0,altitude:0});requestAnimationFrame(frame);}requestAnimationFrame(frame);
+window.__AUDIO_PREVIEW__={audio,VOICE_PACKS};window.__READY__=true;
+</script>
+</html>

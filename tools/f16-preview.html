@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>F-16 CAD preview</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#101619;color:#cde9dc}
+  #status{position:fixed;left:16px;top:14px;font:12px/1.5 Consolas,monospace;
+    color:#a9d9c6;background:rgba(8,18,17,.65);padding:8px 10px;z-index:2}
+  #hint{position:fixed;right:16px;bottom:14px;font:11px Consolas,monospace;color:#6c9c8d}
+</style>
+</head>
+<body>
+<div id="status">loading f16_cad.glb…</div>
+<div id="hint">drag to rotate · wheel to zoom</div>
+<script type="module">
+import * as THREE from '../vendor/three.module.js';
+// GLTFLoader.js is the UMD build and mutates its global THREE object.
+// A module namespace is frozen, so expose a mutable copy for the loader.
+const { GLTFLoader } = await import('../vendor/GLTFLoader.module.js');
+
+const status = document.getElementById('status');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x101619);
+const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.1, 500);
+camera.position.set(13, 9, 18);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+document.body.appendChild(renderer.domElement);
+
+scene.add(new THREE.HemisphereLight(0xdff6ff, 0x17251f, 1.4));
+const key = new THREE.DirectionalLight(0xffe5c6, 3.0);
+key.position.set(10, 18, 10);
+scene.add(key);
+const rim = new THREE.DirectionalLight(0x84c8ff, 1.6);
+rim.position.set(-12, 7, -12);
+scene.add(rim);
+const grid = new THREE.GridHelper(40, 40, 0x233d36, 0x182a25);
+grid.position.y = -2.65;
+scene.add(grid);
+
+let model = null;
+const previewParams = new URLSearchParams(location.search);
+let yaw = Number(previewParams.get('yaw') ?? 0.35);
+let pitch = Number(previewParams.get('pitch') ?? 0.12);
+let distance = 24;
+let dragging = false, lastX = 0, lastY = 0;
+const loader = new GLTFLoader();
+const modelFile = new URLSearchParams(location.search).get('high')
+  ? 'f16_cad_high.glb' : 'f16_cad.glb';
+loader.load(`../assets/models/f16/${modelFile}`, (gltf) => {
+  model = gltf.scene;
+  scene.add(model);
+  const box = new THREE.Box3().setFromObject(model);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+  model.position.sub(center);
+  distance = Math.max(size.x, size.y, size.z) * 1.75;
+  status.textContent = `f16_cad.glb · ${size.x.toFixed(1)} × ${size.y.toFixed(1)} × ${size.z.toFixed(1)} m · ${gltf.scene.children.length} nodes`;
+  window.__F16_READY__ = true;
+}, (event) => {
+  if (event.total) status.textContent = `loading f16_cad.glb… ${Math.round(event.loaded/event.total*100)}%`;
+}, (error) => {
+  status.textContent = `load error: ${error?.message || error}`;
+  console.error(error);
+});
+
+renderer.domElement.addEventListener('pointerdown', (e) => {
+  dragging = true; lastX = e.clientX; lastY = e.clientY;
+});
+addEventListener('pointerup', () => dragging = false);
+addEventListener('pointermove', (e) => {
+  if (!dragging) return;
+  yaw -= (e.clientX - lastX) * 0.008;
+  pitch = Math.max(-1.2, Math.min(1.2, pitch - (e.clientY - lastY) * 0.006));
+  lastX = e.clientX; lastY = e.clientY;
+});
+renderer.domElement.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  distance = Math.max(8, Math.min(60, distance + Math.sign(e.deltaY) * 2));
+}, { passive: false });
+
+function tick() {
+  requestAnimationFrame(tick);
+  if (model && !previewParams.has('fixed')) model.rotation.y = yaw;
+  const cp = Math.cos(pitch), sp = Math.sin(pitch);
+  camera.position.set(
+    Math.sin(yaw) * cp * distance,
+    sp * distance + 1.0,
+    Math.cos(yaw) * cp * distance);
+  camera.lookAt(0, 0, 0);
+  renderer.render(scene, camera);
+}
+tick();
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>

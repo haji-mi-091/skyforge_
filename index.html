@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#061012" />
+  <title>SKYFORGE · 超视距空战</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <canvas id="scene" aria-label="飞行场景"></canvas>
+    <canvas id="hud" aria-hidden="true"></canvas>
+
+    <div id="loading" class="overlay loading">
+      <div class="loading-grid"></div>
+      <div class="loading-inner">
+        <div class="brand-mark">SF<span>/</span>01</div>
+        <div class="loading-title">SKYFORGE</div>
+        <div class="loading-sub">FLIGHT DYNAMICS LAB</div>
+        <div class="loading-track"><div id="loading-fill"></div></div>
+        <div id="loading-text">正在生成地形…</div>
+      </div>
+      <div class="loading-footer">PROCEDURAL AERODYNAMICS · 6-DOF · REAL-TIME</div>
+    </div>
+
+    <main id="menu" class="screen menu hidden">
+      <div class="menu-shade"></div>
+      <div class="menu-inner">
+        <header class="menu-head">
+          <div class="eyebrow"><span class="dot"></span> FLIGHT DYNAMICS LAB · 2026</div>
+          <h1 class="wordmark">SKY<span>FORGE</span></h1>
+          <div class="cn-title">超视距空战</div>
+          <p class="lede">六自由度气动仿真 · 电传飞控 · F-16 布局测试原型</p>
+        </header>
+
+        <section class="mode-grid" aria-label="任务模式">
+          <button class="mode-card primary" data-action="start" data-mode="instant">
+            <span class="mode-index">01</span>
+            <span class="mode-copy"><b>即时空战</b><em>雷达接触 · 训练目标</em></span>
+            <span class="mode-arrow">↗</span>
+          </button>
+          <button class="mode-card" data-action="start" data-mode="runway">
+            <span class="mode-index">02</span>
+            <span class="mode-copy"><b>跑道起飞</b><em>从基地滑跑 · 加入战斗</em></span>
+            <span class="mode-arrow">↗</span>
+          </button>
+          <button class="mode-card" data-action="start" data-mode="test">
+            <span class="mode-index">03</span>
+            <span class="mode-copy"><b>性能试飞</b><em>高空自由飞行 · 遥测数据</em></span>
+            <span class="mode-arrow">↗</span>
+          </button>
+        </section>
+
+        <footer class="menu-foot">
+          <div class="quick-keys">
+            <span><kbd>鼠标</kbd> 视角</span>
+            <span><kbd data-binding="mouseCapture">L</kbd> 鼠标</span>
+            <span><kbd data-binding="weaponNext">Alt+1</kbd> 挂载武器</span>
+            <span><kbd data-binding="radarRange">Alt+2</kbd> 雷达</span>
+            <span><kbd data-binding="gear">G</kbd> 起落架</span>
+            <span><kbd data-binding="chaff">E</kbd> 箔条</span>
+            <span><kbd data-binding="flares">Z</kbd> 热焰弹</span>
+            <span><kbd data-binding="flaps">F</kbd> 着陆襟翼</span>
+            <span><kbd data-binding="takeoffFlaps">Alt+F</kbd> 起飞襟翼</span>
+            <span><kbd data-binding="airbrake">H</kbd> 减速板</span>
+            <span><kbd data-binding="pitchLadder">V</kbd> 姿态线</span>
+            <span><kbd data-binding="gunFire">LMB</kbd> 机炮</span>
+            <span><kbd data-binding="cannonBelt">K</kbd> 弹链</span>
+            <span><kbd data-binding="weaponFire">Space</kbd> 锁定/发射/投弹</span>
+          </div>
+          <div class="foot-actions">
+            <button class="ghost-btn hangar-open" data-action="hangar">机库</button>
+            <button class="ghost-btn" data-action="help">操作说明</button>
+            <button class="ghost-btn" data-action="settings">设置</button>
+            <button class="ghost-btn" data-action="fullscreen">全屏</button>
+          </div>
+        </footer>
+      </div>
+
+      <aside class="menu-spec">
+        <div class="spec-tag" id="spec-tag">F-16CM BLOCK 52 // VIPER</div>
+        <div class="spec-name" id="spec-name">F-16CM<br />BLOCK 52</div>
+        <div class="spec-rule"></div>
+        <dl>
+          <div><dt>翼载</dt><dd>391 kg/m²</dd></div>
+          <div><dt>推重比</dt><dd>1.18</dd></div>
+          <div><dt>极限过载</dt><dd>+9.0 G</dd></div>
+          <div><dt>最大马赫</dt><dd>2.05</dd></div>
+          <div><dt>动力</dt><dd>F100-PW-220</dd></div>
+        </dl>
+        <div class="spec-note" id="spec-note">美国 · 单发轻型多用途战斗机</div>
+      </aside>
+
+      <div class="menu-copyright">
+        <span>SKYFORGE ENGINE v0.9</span>
+        <span>F-16 布局参考：公开飞行资料 / 三视图与座舱照片</span>
+      </div>
+    </main>
+
+    <main id="hangar" class="screen hangar-screen hidden">
+      <div class="hangar-screen-shade"></div>
+      <header class="hangar-screen-head">
+        <button class="ghost-btn" data-action="close-hangar">← 返回主菜单</button>
+        <div class="hangar-screen-title"><em>HANGAR / 机库</em><b>选择战机与挂载</b></div>
+        <div class="hangar-screen-status">F-16CM BLOCK 52 // READY</div>
+      </header>
+      <div class="mode-grid hangar-mode-grid" aria-label="机库出击">
+        <button class="mode-card primary" data-action="start" data-mode="instant">
+          <span class="mode-index">01</span>
+          <span class="mode-copy"><b>即时空战</b><em>挂载出击</em></span>
+          <span class="mode-arrow">↗</span>
+        </button>
+        <button class="mode-card" data-action="start" data-mode="runway">
+          <span class="mode-index">02</span>
+          <span class="mode-copy"><b>跑道起飞</b><em>从机库滑出</em></span>
+          <span class="mode-arrow">↗</span>
+        </button>
+        <button class="mode-card" data-action="start" data-mode="test">
+          <span class="mode-index">03</span>
+          <span class="mode-copy"><b>性能试飞</b><em>不挂弹验证</em></span>
+          <span class="mode-arrow">↗</span>
+        </button>
+      </div>
+      <div class="hangar-screen-body">
+        <aside class="hangar-left-column">
+          <div class="hangar-toolbar">
+            <button type="button" class="hangar-mini wide hangar-toggle" id="hangar-loadout-open" aria-controls="hangar-panel">挂载选择</button>
+            <div class="hangar-paint-row" id="hangar-paint-row">
+              <span class="hangar-paint-label">涂装</span>
+              <select id="hangar-paint" aria-label="飞机涂装"></select>
+            </div>
+          </div>
+
+          <section class="hangar-panel" id="hangar-panel" aria-label="机库挂载">
+            <header class="hangar-head">
+              <div><em id="hangar-loadout-tag">F-16 / LOADOUT</em><b id="hangar-aircraft">F-16CM BLOCK 52</b></div>
+              <span id="hangar-mass">0 KG</span>
+              <button type="button" class="hangar-mini wide" id="hangar-loadout-close">收起</button>
+            </header>
+            <div class="hangar-preset-row">
+              <button type="button" class="hangar-mini" data-hangar-preset="-1" title="上一个预设">‹</button>
+              <select id="hangar-preset" aria-label="挂载预设"></select>
+              <button type="button" class="hangar-mini" data-hangar-preset="1" title="下一个预设">›</button>
+              <button type="button" class="hangar-mini wide" id="hangar-new">新建</button>
+              <button type="button" class="hangar-mini wide" id="hangar-delete">删除</button>
+              <button type="button" class="hangar-mini wide" id="hangar-default">恢复默认</button>
+            </div>
+            <div class="hangar-slots" id="hangar-slots"></div>
+            <div class="hangar-catalog-head">
+              <span id="hangar-active-store">选择一类挂载</span>
+              <button type="button" class="hangar-mini" id="hangar-clear">清空挂点</button>
+            </div>
+            <div class="hangar-catalog" id="hangar-catalog"></div>
+            <div class="hangar-summary" id="hangar-summary"></div>
+          </section>
+        </aside>
+
+        <aside class="hangar-screen-spec">
+          <div class="spec-tag">F-16CM BLOCK 52 // HANGAR</div>
+          <div class="spec-name">F-16CM<br />BLOCK 52</div>
+          <div class="spec-rule"></div>
+          <dl>
+            <div><dt>翼载</dt><dd>391 kg/m²</dd></div>
+            <div><dt>推重比</dt><dd>1.18</dd></div>
+            <div><dt>极限过载</dt><dd>+9.0 G</dd></div>
+            <div><dt>最大马赫</dt><dd>2.05</dd></div>
+            <div><dt>动力</dt><dd>F100-PW-220</dd></div>
+            <div><dt>挂点</dt><dd id="hangar-station-count">7</dd></div>
+          </dl>
+          <div class="spec-note">左键拖拽旋转 · 滚轮缩放</div>
+        </aside>
+      </div>
+
+      <div class="hangar-hint" id="hangar-hint">机库预览 · 左键拖拽旋转 · 滚轮缩放</div>
+
+      <footer class="hangar-screen-foot">
+        <section class="aircraft-select hangar-aircraft-select" aria-label="机库机型选择">
+          <button class="aircraft-choice selected" data-aircraft="f16cm-block52" aria-pressed="true">
+            <span class="aircraft-index">F-16CM</span>
+            <span class="aircraft-copy"><b>F-16CM Block 52</b><em>美国 · 单发轻型多用途战斗机</em></span>
+          </button>
+          <button class="aircraft-choice" data-aircraft="j16" aria-pressed="false">
+            <span class="aircraft-index">J-16</span><span class="aircraft-copy"><b>歼-16</b><em>中国 · 双座双发重型多用途战斗机</em></span>
+          </button>
+          <button class="aircraft-choice" data-aircraft="j10c" aria-pressed="false">
+            <span class="aircraft-index">J-10C</span><span class="aircraft-copy"><b>歼-10C</b><em>中国 · 单发鸭式布局多用途战斗机</em></span>
+          </button>
+        </section>
+        <div class="foot-actions">
+          <button class="ghost-btn" data-action="settings">设置</button>
+          <button class="ghost-btn" data-action="help">操作说明</button>
+        </div>
+      </footer>
+    </main>
+
+    <div id="pause" class="overlay modal-layer hidden">
+      <section class="modal pause-modal">
+        <div class="modal-kicker">MISSION SUSPENDED</div>
+        <h2>暂停</h2>
+        <div class="pause-grid">
+          <button class="action-btn primary" data-action="resume">继续任务</button>
+          <button class="action-btn" data-action="restart">重新开始</button>
+          <button class="action-btn" data-action="settings">设置</button>
+          <button class="action-btn" data-action="help">操作说明</button>
+          <button class="action-btn danger" data-action="menu">返回机库</button>
+        </div>
+        <div class="modal-note" id="pause-keys"></div>
+      </section>
+    </div>
+
+    <div id="settings" class="overlay modal-layer hidden">
+      <section class="modal settings-modal">
+        <div class="modal-kicker">SYSTEM CONFIGURATION</div>
+        <h2>设置</h2>
+        <div class="settings-list">
+          <label class="setting-row">
+            <span><b>画质</b><em>高画质启用阴影与高分辨率渲染</em></span>
+            <select id="setting-quality">
+              <option value="high">高</option>
+              <option value="balanced">均衡</option>
+              <option value="performance">性能</option>
+            </select>
+          </label>
+          <label class="setting-row">
+            <span><b>鼠标灵敏度</b><em>飞行操纵杆的响应幅度</em></span>
+            <div class="range-wrap"><input id="setting-sens" type="range" min="0.45" max="1.8" step="0.05" /><output id="setting-sens-value">1.00</output></div>
+          </label>
+          <label class="setting-row">
+            <span><b>反转鼠标俯仰</b><em>关闭时：上移鼠标 = 抬头</em></span>
+            <input id="setting-invert" type="checkbox" />
+          </label>
+          <label class="setting-row">
+            <span><b>总音量</b><em>所有声音的最终输出</em></span>
+            <div class="range-wrap"><input id="setting-volume" type="range" min="0" max="1" step="0.02" /><output id="setting-volume-value">60%</output></div>
+          </label>
+          <label class="setting-row">
+            <span><b>发动机音量</b><em>发动机、加力与进气噪声</em></span>
+            <div class="range-wrap"><input id="setting-engine-volume" type="range" min="0" max="1" step="0.02" /><output id="setting-engine-volume-value">80%</output></div>
+          </label>
+          <label class="setting-row">
+            <span><b>雷达告警 / 人声</b><em>RWR 音调与座舱语音告警</em></span>
+            <div class="range-wrap"><input id="setting-alert-volume" type="range" min="0" max="1" step="0.02" /><output id="setting-alert-volume-value">80%</output></div>
+          </label>
+          <label class="setting-row">
+            <span><b>人声</b><em>座舱语音告警</em></span>
+            <select id="setting-voice"></select>
+          </label>
+          <label class="setting-row">
+            <span><b>静音</b><em>保留字幕和 HUD 警告</em></span>
+            <input id="setting-mute" type="checkbox" />
+          </label>
+        </div>
+        <details id="binding-settings" class="binding-settings">
+          <summary>键位修改</summary>
+          <p class="binding-note">点击“修改”，按下单键或同时按下组合键，再用鼠标点击“确定”。允许重复绑定；组合键优先于其中的单键。</p>
+          <div id="key-bindings"></div>
+          <button type="button" id="bindings-default" class="action-btn">恢复全部默认键位</button>
+        </details>
+        <div class="modal-actions">
+          <button class="action-btn" data-action="fullscreen">切换全屏</button>
+          <button class="action-btn primary" data-action="close-settings">完成</button>
+        </div>
+        <div class="modal-note">设置保存在本机浏览器。<span data-binding="help">F1</span> 可随时查看操作说明。</div>
+      </section>
+    </div>
+
+    <div id="help" class="overlay modal-layer hidden">
+      <section class="modal help-modal">
+        <div class="modal-kicker">PILOT OPERATING HANDBOOK</div>
+        <h2>操作说明</h2>
+        <div class="help-columns">
+          <div>
+            <h3>飞行控制</h3>
+            <div class="key-row"><kbd>鼠标</kbd><span>圆圈＝鼠标；十字＝机头指向；视角跟随鼠标，机头自动追视角</span></div>
+            <div class="key-row"><kbd data-binding="pitchDown">W</kbd><span>下压（拉满可用负过载）</span></div>
+            <div class="key-row"><kbd data-binding="pitchUp">S</kbd><span>上抬（拉满可用正过载）</span></div>
+            <div class="key-row"><kbd data-binding="rollLeft">A</kbd><span>向左滚转（可连续 360°）</span></div>
+            <div class="key-row"><kbd data-binding="rollRight">D</kbd><span>向右滚转（可连续 360°）</span></div>
+            <div class="key-row"><kbd data-binding="yawLeft">Q</kbd><span>左方向舵（地面 / 自由视角）</span></div>
+            <div class="key-row"><kbd data-binding="yawRight">Y</kbd><span>右方向舵（地面 / 自由视角）</span></div>
+            <div class="key-row"><kbd data-binding="throttleUp">左Shift</kbd><span>增加油门 · 推满进入加力</span></div>
+            <div class="key-row"><kbd data-binding="throttleDown">左Ctrl</kbd><span>减小油门</span></div>
+            <div class="key-row"><kbd>滚轮</kbd><span>微调油门</span></div>
+          </div>
+          <div>
+            <h3>飞机系统</h3>
+            <div class="key-row"><kbd data-binding="gear">G</kbd><span>起落架收放</span></div>
+            <div class="key-row"><kbd data-binding="flaps">F</kbd><span>襟翼收放</span></div>
+            <div class="key-row"><kbd data-binding="takeoffFlaps">Alt + F</kbd><span>起飞襟翼</span></div>
+            <div class="key-row"><kbd data-binding="airbrake">H</kbd><span>减速板 / 地面刹车</span></div>
+            <div class="key-row"><kbd data-binding="freeLook">C</kbd><span>切换自由视角 / 鼠标瞄准（键盘仍可操纵）</span></div>
+            <div class="key-row"><kbd data-binding="camera">X</kbd><span>切换座舱 / 追尾视角</span></div>
+            <div class="key-row"><kbd data-binding="pitchLadder">V</kbd><span>姿态指示线开 / 关</span></div>
+            <div class="key-row"><kbd data-binding="telemetry">T</kbd><span>飞行测试遥测</span></div>
+            <div class="key-row"><kbd data-binding="map">M</kbd><span>打开 / 关闭 20 km 方形战术地图</span></div>
+            <div class="key-row"><kbd data-binding="mute">N</kbd><span>静音 / 恢复音频</span></div>
+            <div class="key-row"><kbd data-binding="mouseCapture">L</kbd><span>呼出鼠标 / 重新锁定</span></div>
+            <div class="key-row"><kbd data-binding="canopy">P</kbd><span>开关座舱盖</span></div>
+            <div class="key-row"><kbd><span data-binding="dragChute">B</span> / <span data-binding="fuelDump">J</span></kbd><span>歼-16、歼-10C：地面减速伞 / 放油开关</span></div>
+            <div class="key-row"><kbd data-binding="jettisonTanks">O</kbd><span>抛弃全部副油箱</span></div>
+            <div class="key-row"><kbd data-binding="pause">ESC</kbd><span>暂停</span></div>
+          </div>
+          <div>
+            <h3>武器与对抗</h3>
+            <div class="key-row"><kbd data-binding="gunFire">左键</kbd><span>机炮：F-16 为 20 mm，歼-16 为 30 mm，歼-10C 为 23 mm</span></div>
+            <div class="key-row"><kbd data-binding="weaponFire">空格</kbd><span>所有挂载武器：锁定 / 发射 / 投弹；对地朝视线落点投放</span></div>
+            <div class="key-row"><kbd data-binding="weaponNext">Alt+1</kbd><span>切换挂载武器</span></div>
+            <div class="key-row"><kbd data-binding="cannonBelt">K</kbd><span>切换机炮弹链（三机均可：默认 / 对空 / 隐踪 / 穿甲等）</span></div>
+            <div class="key-row"><kbd data-binding="targetNext">R</kbd><span>切换锁定目标</span></div>
+            <div class="key-row"><kbd data-binding="flares">Z</kbd><span>投放热焰弹</span></div>
+            <div class="key-row"><kbd data-binding="chaff">E</kbd><span>投放箔条</span></div>
+            <div class="key-row"><kbd data-binding="help">F1</kbd><span>打开本说明</span></div>
+            <div class="help-callout" id="help-fire-note"></div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="action-btn primary" data-action="close-help">返回</button>
+        </div>
+      </section>
+    </div>
+
+    <div id="death" class="overlay modal-layer hidden">
+      <section class="modal death-modal">
+        <div class="modal-kicker danger-text">AIRFRAME LOST</div>
+        <h2>战机损毁</h2>
+        <p id="death-reason">你被敌方火力击落。</p>
+        <div class="death-stats">
+          <div><span>任务得分</span><b id="death-score">0</b></div>
+          <div><span>击落敌机</span><b id="death-kills">0</b></div>
+          <div><span>存活时间</span><b id="death-time">00:00</b></div>
+        </div>
+        <div class="modal-actions">
+          <button class="action-btn primary" data-action="respawn">重新出击</button>
+          <button class="action-btn" data-action="menu">返回机库</button>
+        </div>
+      </section>
+    </div>
+
+    <div id="toasts" aria-live="polite"></div>
+    <div class="scanlines"></div>
+  </div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

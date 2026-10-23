@@ -1,0 +1,13 @@
+{
+ "files": {
+  "engineCruise":"j10c/1202-idle_su_27_exterior.wav",
+  "engineThrust":"j10c/0523-max_su_27_exterior.wav",
+  "engineAfterburner":"j10c/0386-afterburner_su_27_exterior.wav",
+  "engineCockpitLeft":"j10c/0780-max_su_27_cockpit_l.wav",
+  "engineCockpitRight":"j10c/0841-max_su_27_cockpit_r.wav",
+  "gun":"j10c/0038-gsh_23_close-001.wav",
+  "gunFirst":"j10c/0039-gsh_23_first_close-001.wav",
+  "gunLast":"j10c/0386-gsh_23_last_close-001.wav",
+  "missile":"wt-sfx/missile_start_med-001.wav"
+ }
+}

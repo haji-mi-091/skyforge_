@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="data:," />
+    <title>F-16CM 全机检查</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #18202b;
+        overflow: hidden;
+        color: #ddd;
+        font: 13px system-ui;
+      }
+      #controls {
+        position: fixed;
+        bottom: 12px;
+        left: 12px;
+        background: #14202edb;
+        padding: 12px;
+        border-radius: 8px;
+        z-index: 3;
+      }
+      label {
+        margin-right: 14px;
+      }
+      input[type='checkbox'] {
+        width: auto;
+      }
+      input {
+        width: 110px;
+      }
+      #info {
+        position: fixed;
+        top: 12px;
+        left: 12px;
+        white-space: pre;
+        pointer-events: none;
+        font: 12px Consolas;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="info">loading</div>
+    <div id="controls">
+      <span>拖动旋转 · 滚轮缩放　</span
+      ><label
+        >挂载
+        <select id="loadout">
+          <option value="cap">制空</option>
+          <option value="strike">对地</option>
+          <option value="tanks">三油箱</option>
+          <option value="clean">空挂</option>
+        </select></label
+      ><label
+        >视角
+        <select id="view">
+          <option>beauty</option>
+          <option>top</option>
+          <option>bottom</option>
+          <option>left</option>
+          <option>front</option>
+          <option>rear</option>
+          <option>wing</option>
+          <option>stores</option>
+          <option>gear</option>
+          <option>wheel</option>
+          <option>canopy</option>
+          <option>intake</option>
+          <option>nose-bay</option>
+          <option>nozzle</option>
+          <option>nozzle-side</option>
+          <option>nozzle-rear</option>
+          <option>gun</option>
+          <option>launch</option>
+        </select></label
+      ><label
+        >迎角<input
+          id="alpha"
+          type="range"
+          min="-5"
+          max="25"
+          value="0" /></label
+      ><label
+        >滚转<input
+          id="roll"
+          type="range"
+          min="-1"
+          max="1"
+          step=".01"
+          value="0" /></label
+      ><label
+        >起落架<input
+          id="gear"
+          type="range"
+          min="0"
+          max="1"
+          step=".01"
+          value="0" /></label
+      ><label
+        >襟翼<input
+          id="flaps"
+          type="range"
+          min="0"
+          max="1"
+          step=".5"
+          value="0" /></label
+      ><label>地面滚动<input id="ground" type="checkbox" /></label
+      ><label
+        >油门<input
+          id="throttle"
+          type="range"
+          min="0"
+          max="1.1"
+          step=".01"
+          value=".95"
+      /></label>
+      <label
+        >座舱盖<input
+          id="canopy"
+          type="range"
+          min="0"
+          max="1"
+          step=".01"
+          value="0" /></label
+      ><button id="canopy-toggle">开/关舱盖</button>
+      <label>机炮<input id="gun" type="checkbox" /></label
+      ><label>剖视<input id="cutaway" type="checkbox" /></label
+      ><button id="launch">导弹演示（慢速）</button
+      ><button id="reload">补充挂载</button>
+      <button id="animate">机动演示</button>
+    </div>
+    <script type="module">
+      import * as THREE from '../vendor/three.module.js';
+      import { JetModel } from '../src/visual/JetModel.js';
+      import { F16CM_BLOCK52 } from '../src/data/aircraft.js';
+      import { Aircraft } from '../src/sim/Aircraft.js';
+      import { CombatSystem } from '../src/sim/CombatSystem.js';
+      import { TrailRibbon } from '../src/visual/Trail.js';
+      import { whenVfxReady } from '../src/visual/VfxAtlas.js';
+      import { missileLoadoutFromPreset } from '../src/data/hangar.js';
+      import { F16CM_DEFAULT_PRESETS } from '../src/data/hangar.js';
+      const p = new URLSearchParams(location.search),
+        scene = new THREE.Scene(),
+        camera = new THREE.PerspectiveCamera(
+          36,
+          innerWidth / innerHeight,
+          0.03,
+          200,
+        );
+      scene.background = new THREE.Color('#18202b');
+      const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        preserveDrawingBuffer: true,
+      });
+      renderer.localClippingEnabled = true;
+      renderer.setSize(innerWidth, innerHeight);
+      renderer.setPixelRatio(1);
+      renderer.outputEncoding = THREE.sRGBEncoding;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 0.96;
+      document.body.appendChild(renderer.domElement);
+      scene.add(new THREE.HemisphereLight(0xdbe7fa, 0x58616b, 0.45));
+      for (const [pos, color, intensity] of [
+        [[5, 10, -8], 0xfff2df, 1.8],
+        [[-8, 4, 4], 0xb6d3ff, 0.38],
+        [[1, -8, 2], 0xd5e4fa, 0.2],
+      ]) {
+        const l = new THREE.DirectionalLight(color, intensity);
+        l.position.set(...pos);
+        scene.add(l);
+      }
+      const config = structuredClone(F16CM_BLOCK52);
+      config.visual.cadModel = '../'+F16CM_BLOCK52.visual.cadModel;
+      const load = p.get('loadout') || 'cap';
+      config.visual.loadout =
+        load === 'clean'
+          ? {}
+          : structuredClone(
+              F16CM_DEFAULT_PRESETS[load === 'tanks' ? 2 : 0].loadout,
+            );
+      if (load === 'strike')
+        config.visual.loadout = {
+          lt: 'aim120c',
+          rt: 'aim120c',
+          lo: 'aim9x',
+          ro: 'aim9x',
+          li: 'gbu38',
+          ri: 'gbu12',
+          tl: 'fuel370',
+          tr: 'fuel370',
+          ctr: null,
+          pr: 'litening',
+        };
+      config.armament.missileLoadout = missileLoadoutFromPreset(
+        { loadout: config.visual.loadout },
+        config,
+      );
+      const jet = new JetModel(config, { isPlayer: true });
+      scene.add(jet.group);
+      const flight = {
+        position: new THREE.Vector3(),
+        orientation: new THREE.Quaternion(),
+        velocity: new THREE.Vector3(0, 0, -150),
+        rates: { p: 0, q: 0, r: 0 },
+        control: { surfaces: { aileron: 0, elevator: 0, rudder: 0 } },
+        alpha: 0,
+        aoaDeg: 0,
+        mach: 0.45,
+        tas: 150,
+        iasKmh: 540,
+        onGround: false,
+        air: { alpha: 0, mach: 0.45, dynamicPressure: 13781, pressure: 90000 },
+      };
+      const shooter = new Aircraft(config);
+      shooter.visual = {
+        createCadMissileMesh: (t) => jet.createCadMissileMesh(t),
+        getMissileLaunchPose: (...args) => {
+          const pose = jet.getMissileLaunchPose(...args);
+          if (pose) pose.position.add(shooter.flight.position);
+          return pose;
+        },
+      };
+      shooter.flight.position.set(0, 1000, 0);
+      shooter.flight.velocity.set(0, 0, -250);
+      const target = new Aircraft(config);
+      target.flight.position.set(0, 1000, -4000);
+      target.flight.velocity.set(0, 0, 0);
+      target.team = 'red';
+      const trails = [];
+      const launchRoot = new THREE.Group();
+      scene.add(launchRoot);
+      const effects = {
+        createTrail: (o) => {
+          const t = new TrailRibbon(launchRoot, o);
+          trails.push(t);
+          return t;
+        },
+        removeTrail: (t) => {
+          t.dispose();
+          const i = trails.indexOf(t);
+          if (i >= 0) trails.splice(i, 1);
+        },
+        explosion: () => {},
+      };
+      const audio = { missileLaunch: () => {}, explosion: () => {} };
+      const combat = new CombatSystem({
+        scene: launchRoot,
+        world: { groundHeight: () => -1000 },
+        effects,
+        audio,
+        getPlayer: () => shooter,
+        getAircraft: () => [shooter, target],
+      });
+      let texturesReady = false;
+      whenVfxReady().then(() => (texturesReady = true));
+      let gunFiring = false,
+        canopyTarget = null;
+      function advanceMissiles(dt) {
+        if (combat.missiles.length)
+          shooter.flight.position.addScaledVector(shooter.flight.velocity, dt);
+        combat.updateMissiles(dt);
+        launchRoot.position.copy(shooter.flight.position).negate();
+        const trailCamera = {
+          position: camera.position.clone().add(shooter.flight.position),
+        };
+        for (const t of trails) t.update(dt, trailCamera);
+      }
+      function launchMissile() {
+        if (!shooter.weapons.missiles) return false;
+        const type = shooter.getMissileConfig().type,
+          pose = jet.getMissileLaunchPose(
+            type,
+            (shooter.weapons.missileRemaining[type] || 1) - 1,
+          );
+        if (pose)
+          presets.launch = [
+            [pose.position.x, -0.4, -1.0],
+            [Math.sign(pose.position.x) * 5, 2, -5.4],
+          ];
+        setView('launch');
+        return combat.launchMissile(shooter, target);
+      }
+      function setCutaway(value) {
+        const plane = new THREE.Plane(new THREE.Vector3(1, 0, 0), -0.0075),
+          materials = new Set();
+        if (jet.cadSkinMaterial) materials.add(jet.cadSkinMaterial);
+        for (const o of [jet.cadIntake, jet.cadGroup?.userData.noseBay])
+          o?.traverse((m) => {
+            if (m.material) materials.add(m.material);
+          });
+        for (const m of materials) {
+          m.clippingPlanes = value ? [plane] : null;
+          m.needsUpdate = true;
+        }
+      }
+      const systems = {
+        gear: Number(p.get('gear') || 0),
+        flaps: Number(p.get('flaps') || 0),
+        airbrake: 0,
+        canopy: Number(p.get('canopy') || 0),
+      };
+      let ready = false,
+        anim = p.get('animate') === '1',
+        last = performance.now();
+      const presets = {
+        beauty: [
+          [0, 0.1, 0],
+          [12, 7, -14],
+        ],
+        top: [
+          [0, -0.1, 0],
+          [0, 24, 0.1],
+        ],
+        bottom: [
+          [0, -0.5, 0],
+          [0, -24, -0.1],
+        ],
+        left: [
+          [0, -0.1, 0],
+          [-18, 2, 0],
+        ],
+        front: [
+          [0, -0.2, 0],
+          [0, 1, -20],
+        ],
+        rear: [
+          [0, 0.2, 1.2],
+          [0, 3, 20],
+        ],
+        wing: [
+          [2.8, -0.15, 1.3],
+          [7, 4, -2],
+        ],
+        stores: [
+          [2.8, -0.6, 1.5],
+          [6, -3, -3],
+        ],
+        gear: [
+          [0, -1, -0.4],
+          [7, -3, -0.3],
+        ],
+      };
+      presets.wheel = [
+        [1.2, -1.65, 1.39],
+        [2.5, 0.25, -0.8],
+      ];
+      presets.canopy = [
+        [0, 1.25, -2.8],
+        [4.5, 1.5, -1.9],
+      ];
+      presets.intake = [
+        [0, -0.65, -2.7],
+        [0.65, -0.12, -3.1],
+      ];
+      presets['nose-bay'] = [
+        [0, -0.85, -1.85],
+        [-2.7, -0.1, -0.1],
+      ];
+      presets.nozzle = [
+        [0, -0.05, 8.5],
+        [7.6, 1.4, 3.2],
+      ];
+      presets['nozzle-side'] = [[0,-.05,8.5],[9,0,0]];
+      presets['nozzle-rear'] = [[0,-.05,6.8],[.04,.08,8.5]];
+      presets.gun = [
+        [-0.562, 0.25, -1.82],
+        [-2.2, 0.8, -1.8],
+      ];
+      presets.launch = [
+        [-3.2, -0.4, -1.0],
+        [-6, 2.8, -7],
+      ];
+      let view = p.get('view') || 'beauty',
+        lookTarget = new THREE.Vector3();
+      function setView(v) {
+        view = v;
+        const [target, offset] = presets[v] || presets.beauty;
+        lookTarget.set(...target);
+        camera.up.set(0, 1, 0);
+        camera.position.set(...target).add(new THREE.Vector3(...offset));
+        camera.lookAt(new THREE.Vector3(...target));
+        document.getElementById('view').value = v;
+      }
+      function setState(s = {}, dt = 1 / 60) {
+        if (s.canopy !== undefined) systems.canopy = s.canopy;
+        if (s.gun !== undefined) gunFiring = s.gun;
+        if (s.throttle !== undefined) {
+          flight.throttle = flight.engineSpool = s.throttle;
+          flight.afterburner = Math.max(0, Math.min(1, (s.throttle - 1) / 0.1));
+        }
+        if (s.ab !== undefined) {
+          flight.afterburner = s.ab;
+          flight.engineSpool = 1;
+        }
+        if (s.gear !== undefined) systems.gear = s.gear;
+        if (s.flaps !== undefined) systems.flaps = s.flaps;
+        if (s.airbrake !== undefined) systems.airbrake = s.airbrake;
+        flight.aoaDeg = s.alpha ?? flight.aoaDeg;
+        flight.alpha = flight.air.alpha = (flight.aoaDeg * Math.PI) / 180;
+        flight.mach = flight.air.mach = s.mach ?? flight.mach;
+        flight.control.surfaces.aileron =
+          s.roll !== undefined ? s.roll * 0.4 : flight.control.surfaces.aileron;
+        flight.control.surfaces.elevator =
+          s.pitch ?? flight.control.surfaces.elevator;
+        flight.control.surfaces.rudder =
+          s.yaw ?? flight.control.surfaces.rudder;
+        flight.onGround = s.onGround ?? flight.onGround;
+        const speed = s.speed ?? flight.tas;
+        flight.tas = speed;
+        flight.iasKmh = speed * 3.6;
+        flight.velocity.z = -speed;
+        flight.air.dynamicPressure = 0.5 * 1.0 * speed * speed;
+        jet.sync(dt, flight, systems, shooter.weapons, {
+          gunFiring,
+          onGround: flight.onGround,
+        });
+        renderer.render(scene, camera);
+      }
+      for (const key of [
+        'alpha',
+        'roll',
+        'gear',
+        'flaps',
+        'canopy',
+        'throttle',
+      ])
+        document.getElementById(key).oninput = (e) => {
+          anim = false;
+          setState({ [key]: Number(e.target.value) });
+        };
+      document.getElementById('canopy-toggle').onclick = () =>
+        (canopyTarget = systems.canopy > 0.5 ? 0 : 1);
+      document.getElementById('gun').onchange = (e) => {
+        gunFiring = e.target.checked;
+        if (gunFiring) setView('gun');
+      };
+      document.getElementById('cutaway').onchange = (e) => {
+        setCutaway(e.target.checked);
+        if (e.target.checked) setView('nose-bay');
+      };
+      document.getElementById('launch').onclick = launchMissile;
+      document.getElementById('reload').onclick = () => {
+        combat.reset();
+        shooter.flight.position.set(0, 1000, 0);
+        launchRoot.position.set(0, -1000, 0);
+        shooter._initMissileLoadout();
+        setState({}, 0);
+      };
+      document.getElementById('view').onchange = (e) => setView(e.target.value);
+      document.getElementById('animate').onclick = () => (anim = !anim);
+      if (p.get('hud') === '0') {
+        document.getElementById('controls').hidden = true;
+        document.getElementById('info').hidden = true;
+      }
+      document.getElementById('loadout').value = load;
+      document.getElementById('loadout').onchange = (e) => {
+        p.set('loadout', e.target.value);
+        location.search = p.toString();
+      };
+      document.getElementById('ground').onchange = (e) => {
+        anim = false;
+        systems.gear = 1;
+        document.getElementById('gear').value = 1;
+        setState({
+          onGround: e.target.checked,
+          speed: e.target.checked ? 12 : 150,
+        });
+      };
+      let drag = null;
+      renderer.domElement.onpointerdown = (e) => {
+        drag = { x: e.clientX, y: e.clientY };
+        renderer.domElement.setPointerCapture(e.pointerId);
+      };
+      renderer.domElement.onpointerup = () => (drag = null);
+      renderer.domElement.onpointermove = (e) => {
+        if (!drag) return;
+        const off = camera.position.clone().sub(lookTarget),
+          sph = new THREE.Spherical().setFromVector3(off);
+        sph.theta -= (e.clientX - drag.x) * 0.006;
+        sph.phi = Math.max(
+          0.03,
+          Math.min(Math.PI - 0.03, sph.phi + (e.clientY - drag.y) * 0.006),
+        );
+        camera.position
+          .copy(lookTarget)
+          .add(new THREE.Vector3().setFromSpherical(sph));
+        camera.lookAt(lookTarget);
+        drag = { x: e.clientX, y: e.clientY };
+      };
+      renderer.domElement.onwheel = (e) => {
+        e.preventDefault();
+        const off = camera.position.clone().sub(lookTarget);
+        off.multiplyScalar(Math.exp(e.deltaY * 0.001));
+        off.setLength(Math.max(1.5, Math.min(60, off.length())));
+        camera.position.copy(lookTarget).add(off);
+        camera.lookAt(lookTarget);
+      };
+      addEventListener('resize', () => {
+        renderer.setSize(innerWidth, innerHeight);
+        camera.aspect = innerWidth / innerHeight;
+        camera.updateProjectionMatrix();
+      });
+      setView(view);
+      function tick(now) {
+        requestAnimationFrame(tick);
+        const dt = Math.min(0.05, (now - last) / 1000);
+        last = now;
+        if (
+          !ready &&
+          jet.cadGroup &&
+          jet.cadGearRigs?.length === 3 &&
+          texturesReady
+        ) {
+          ready = true;
+          setState(
+            {
+              alpha: Number(p.get('alpha') || 0),
+              canopy: Number(p.get('canopy') || 0),
+              throttle: Number(p.get('throttle') || 0.95),
+              gun: p.get('gun') === '1',
+              roll: Number(p.get('roll') || 0),
+              pitch: Number(p.get('pitch') || 0),
+              onGround: p.get('ground') === '1',
+              speed: Number(p.get('speed') || 150),
+            },
+            1,
+          );
+          window.__AIRFRAME_PREVIEW__ = {
+            jet,
+            flight,
+            systems,
+            scene,
+            camera,
+            renderer,
+            setState,
+            setView,
+            combat,
+            shooter,
+            target,
+            trails,
+            advanceMissiles,
+            launchMissile,
+            setCutaway,
+          };
+          window.__READY__ = true;
+          document.getElementById('info').textContent =
+            'F-16CM Block 52 · ' + load;
+          for (const k of [
+            'gear',
+            'flaps',
+            'alpha',
+            'roll',
+            'canopy',
+            'throttle',
+          ])
+            document.getElementById(k).value =
+              k === 'alpha'
+                ? flight.aoaDeg
+                : k === 'roll'
+                  ? flight.control.surfaces.aileron / 0.4
+                  : k === 'throttle'
+                    ? flight.throttle
+                    : systems[k];
+        }
+        if (ready && !window.__AIRFRAME_PREVIEW__?.paused) {
+          if (canopyTarget !== null) {
+            const delta = canopyTarget - systems.canopy;
+            systems.canopy +=
+              Math.sign(delta) * Math.min(Math.abs(delta), dt / 5);
+            if (Math.abs(delta) < 0.0001) canopyTarget = null;
+            document.getElementById('canopy').value = systems.canopy;
+          }
+          advanceMissiles(dt * 0.25);
+        }
+        if (ready && !window.__AIRFRAME_PREVIEW__?.paused && anim) {
+          const t = now * 0.0006;
+          setState(
+            {
+              alpha: 10 + 12 * Math.sin(t),
+              roll: 0.65 * Math.sin(t * 0.9),
+              pitch: 0.3 * Math.sin(t),
+            },
+            dt,
+          );
+        } else if (ready && !window.__AIRFRAME_PREVIEW__?.paused)
+          setState({}, dt);
+        if (!window.__AIRFRAME_PREVIEW__?.paused)
+          renderer.render(scene, camera);
+      }
+      requestAnimationFrame(tick);
+    </script>
+  </body>
+</html>

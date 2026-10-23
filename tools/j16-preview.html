@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><link rel="icon" href="data:,"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SKYFORGE · 歼‑16 蒙皮与模型检查</title>
+<style>
+*{box-sizing:border-box}[hidden]{display:none!important}body{margin:0;overflow:hidden;background:#d6dce0;color:#24333b;font:14px system-ui}canvas{display:block}header{position:absolute;top:24px;left:28px;pointer-events:none}h1{font-size:23px;margin:0 0 7px;font-weight:600;letter-spacing:2px}p{margin:5px 0;color:#52636c}#stats{font:12px Consolas,monospace}aside{position:absolute;bottom:18px;left:22px;right:22px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;background:#f6f8f4e8;padding:14px 18px;border:1px solid #a9b6bb;border-radius:9px}label{display:flex;align-items:center;gap:7px;font-size:12px}input{width:85px}select,button{font:inherit;color:#24333b;border:1px solid #8c9fa7;border-radius:4px;background:#fff;padding:5px}#part{position:absolute;right:24px;top:24px;text-align:right;font-size:12px;white-space:pre-line;pointer-events:none}a{color:#305c6c}#error{color:#a43329}
+</style>
+<style>
+#zones{position:absolute;left:28px;top:151px;pointer-events:none;display:grid;gap:9px;background:#f6f8f4ed;border:1px solid #a9b6bb;border-radius:8px;padding:12px 16px;max-width:340px}#zones p{margin:0;font-size:12px}#zones b{display:block;margin-bottom:3px;font-size:14px}#zones i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:8px;vertical-align:-1px}#zones small{color:#52636c;font-size:11px}#zones .note{margin-top:2px;border-top:1px solid #ccd4d6;padding-top:8px;font-size:11px}
+</style>
+<header><h1>J‑16 / AIRFRAME STUDY</h1><p>歼‑16 · 双座重型战斗机</p><p id="stats">正在加载模型…</p><p>拖动旋转 · 滚轮缩放 · 点击部件查看名称</p><p id="error"></p></header>
+<div id="part"></div>
+<section id="zones" aria-label="三个主要工作区" hidden>
+<p><b><i style="background:#4b9fea"></i>01 蓝色 · 机头区</b>座舱、机头、前起落架</p>
+<p><b><i style="background:#f2a347"></i>02 橙色 · 中段区</b>机背、进气道、主起落架、机翼</p>
+<p><b><i style="background:#62c396"></i>03 绿色 · 机尾区</b>尾翼、双发动机</p>
+<p class="note">含各区舱门、舵面及内部部件，按完整组件归区。<br>机身分界：座舱后方 / 尾翼前方。</p>
+</section>
+<aside id="controls">
+<label>视角<select id="view"><option value="beauty">整体</option><option value="front">前视</option><option value="rear">后视</option><option value="tail">机尾近景</option><option value="tail-rear">机尾正后视</option><option value="tail-bottom">机尾腹部</option><option value="left">侧视</option><option value="reference">参考图方向侧视</option><option value="profile">机头正交侧视</option><option value="top">顶视</option><option value="bottom">腹部</option><option value="cockpit">双座座舱</option><option value="gear">起落架</option><option value="gear-front">起落架正面</option><option value="intake">进气道近景</option><option value="intake-front">进气道正面</option><option value="intake-side">进气道侧面</option><option value="intake-bottom">进气道腹部</option></select></label>
+<label>材质<select id="paint"><option value="weathered">服役灰色 · 拟真做旧（默认）</option><option value="camo">银灰迷彩</option><option value="zones">三个工作区分色</option><option value="white">白模</option><option value="base">基础灰色蒙皮</option><option value="parts">活动部件分色</option></select></label>
+<label>挂载<select id="loadout"></select></label>
+<label>油门 / 加力<input id="throttle" type="range" min="0" max="1.1" step=".01" value="0"></label>
+<label>动画速度<input id="simSpeed" type="range" min=".1" max="1" step=".05" value="1"></label>
+<button id="pause">暂停动画</button>
+<label>发射挂点<select id="launchStation"></select></label><button id="launch">导弹离架</button>
+<button id="gun">按住机炮</button><button id="audio">启用声音</button><span id="systemStatus" aria-live="polite"></span>
+<label>线框<input id="wire" type="checkbox"></label>
+<label>座舱盖<input id="canopy" type="range" min="0" max="1" step=".01" value="0"></label>
+<label>前缘襟翼<input id="slats" type="range" min="0" max="1" step=".01" value="0"></label>
+<label>后缘舵面<input id="flaps" type="range" min="0" max="1" step=".01" value="0"></label>
+<label>平尾<input id="pitch" type="range" min="-1" max="1" step=".01" value="0"></label>
+<label>方向舵<input id="yaw" type="range" min="-1" max="1" step=".01" value="0"></label>
+<label>减速板<input id="airbrake" type="range" min="0" max="1" step=".01" value="0"></label>
+<label>起落架<input id="gear" type="range" min="0" max="1" step=".01" value="1"></label>
+<label>喷口<input id="nozzle" type="range" min="0" max="1" step=".01" value=".7"></label>
+<label>受油管<input id="probe" type="range" min="0" max="1" step=".01" value="0"></label>
+<label>进气道斜板<input id="ramps" type="range" min="0" max="1" step=".01" value="0"></label>
+<label>减震支柱<input id="compression" type="range" min="0" max="1" step=".01" value="0"></label>
+<label>前轮转向<input id="steer" type="range" min="-1" max="1" step=".01" value="0"></label>
+<label>机轮旋转<input id="wheelSpin" type="range" min="0" max="6.28" step=".01" value="0"></label>
+<label>减速伞舱盖<input id="parachute" type="range" min="0" max="1" step=".01" value="0"></label>
+<button id="reset">复位</button></aside>
+<script type="module">
+import * as T from '../vendor/three.module.js';
+import {GLTFLoader} from '../vendor/GLTFLoader.module.js';
+import {J16_LOADOUTS,J16_STATIONS,setJ16Loadout} from '../src/visual/J16Stores.js';
+import {J16Systems,j16NozzleOpening} from '../src/visual/J16Systems.js';
+import {AudioEngine} from '../src/core/Audio.js';
+const q=new URLSearchParams(location.search),scene=new T.Scene();scene.background=new T.Color('#a2b0ba');
+const renderer=new T.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});renderer.setPixelRatio(1);renderer.setSize(innerWidth,innerHeight);renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=.9;
+document.body.appendChild(renderer.domElement);
+const perspectiveCamera=new T.PerspectiveCamera(34,innerWidth/innerHeight,.05,300),profileCamera=new T.OrthographicCamera(-5,5,3,-3,.05,300);
+let camera=perspectiveCamera;
+scene.add(new T.HemisphereLight(0xffffff,0x5b6670,.65));
+for(const [position,intensity,color]of [[[8,15,-10],1.65,0xfff5e6],[[-10,4,6],.65,0xe1ecff],[[0,-8,5],.35,0xffffff]]){const l=new T.DirectionalLight(color,intensity);l.position.set(...position);scene.add(l);}
+const grid=new T.GridHelper(40,40,0x768e9d,0xbac5cc);grid.position.y=-3.055;scene.add(grid);
+const defaults={canopy:0,slats:0,flaps:0,pitch:0,yaw:0,airbrake:0,gear:1,nozzle:.7,probe:0,ramps:0,compression:0,steer:0,wheelSpin:0,parachute:0,throttle:0},state={...defaults};
+const audio=new AudioEngine({sampleManifest:'audio/j16/pack.json',voices:false,tones:false,gunMode:'shots'});
+let root,modelModule,systems,target=new T.Vector3(),view='beauty',drag,paused=false;
+const presets={beauty:[[0,-.3,0],[18,10.5,-22]],front:[[0,-.3,0],[0,1,-26]],rear:[[0,-.3,0],[0,2,26]],left:[[0,-.2,0],[31,0,0]],reference:[[0,-.2,0],[-100,2.5,-2]],top:[[0,0,0],[0,43,.001]],bottom:[[0,-.4,0],[0,-43,.001]],cockpit:[[0,.2,-5.4],[4.7,2,-4.5]],gear:[[0,-2,-1],[9,-3,-11]]};
+presets.tail=[[0,.1,7.1],[10,6,10]];
+presets['tail-bottom']=[[0,-.4,7.2],[8,-6,10]];
+presets.intake=[[.5,-1,-.8],[3.5,-1.7,-5.2]];
+presets.engine=[[0,-.8,8.4],[5.5,2,9.5]];
+presets.gun=[[1,-.4,-3],[3.3,.9,-2.8]];
+presets.launch=[[3,-1,1.2],[8,-4,-7]];
+for(const [id,label]of [['engine','双发喷口'],['engine-side','尾焰侧视'],['engine-rear','尾焰后视'],['gun','机炮口'],['launch','离架近景']])document.getElementById('view').add(new Option(label,id));
+const orthoViews={
+ 'engine-side':{aim:[0,-1,10.5],offset:[21,0,0],width:14.8},
+ 'engine-rear':{aim:[0,-1.14,9],offset:[0,0,20],width:6.4},
+ 'tail-rear':{aim:[0,.25,7.5],offset:[0,0,24],width:10.7},
+ 'gear-front':{aim:[0,-.60,0],offset:[0,0,-24],width:8.4},
+ profile:{aim:[0,.3783041179828164,-6.532849866490916],offset:[31,0,0],width:1200/124.93949626181968},
+ 'intake-front':{aim:[0,-.95,-.6],offset:[0,0,-20],width:5.2},
+ 'intake-side':{aim:[0,-1,-.7],offset:[20,0,0],width:5.4},
+ 'intake-bottom':{aim:[0,-1,-.6],offset:[0,-19,0],width:5.6,up:[0,0,1]},
+};
+function profileFrustum(){const w=orthoViews[view]?.width||orthoViews.profile.width,h=w/(innerWidth/innerHeight);profileCamera.left=-w/2;profileCamera.right=w/2;profileCamera.top=h/2;profileCamera.bottom=-h/2;profileCamera.updateProjectionMatrix();}
+function setView(value){
+ view=value;const ortho=orthoViews[value];camera=ortho?profileCamera:perspectiveCamera;
+ const [aim,offset]=ortho?[ortho.aim,ortho.offset]:(presets[value]||presets.beauty);target.set(...aim);
+ if(ortho){profileFrustum();camera.zoom=1;}else{camera.fov=value==='reference'?9.1:34;camera.far=value==='reference'?600:300;camera.aspect=innerWidth/innerHeight;}
+ camera.updateProjectionMatrix();camera.position.copy(target).add(new T.Vector3(...offset));camera.up.set(...(ortho?.up||[0,1,0]));
+ if(value==='top')camera.up.set(0,0,-1);if(value==='bottom')camera.up.set(0,0,1);camera.lookAt(target);
+ document.getElementById('view').value=value;render();
+}
+function render(){renderer.render(scene,camera);}
+function setLoadout(value){
+ systems?.resetLaunches();
+ setJ16Loadout(root,value);document.getElementById('loadout').value=value;
+ let triangles=0,meshes=0;root.traverse(o=>{if(o.isMesh){triangles+=(o.geometry.index?.count||o.geometry.attributes.position.count)/3;meshes++;o.material.wireframe=document.getElementById('wire').checked;}});
+ document.getElementById('stats').textContent=`${triangles.toLocaleString()} triangles · ${meshes} meshes · 机长 21.95 m / 翼展 14.70 m`;render();
+}
+function setState(values={}){Object.assign(state,values);if(values.throttle!==undefined&&values.nozzle===undefined)state.nozzle=j16NozzleOpening(state.throttle);if(modelModule)modelModule.poseJ16(root,state);systems?.update(0,state);for(const key in state){const input=document.getElementById(key);if(input)input.value=state[key];}render();}
+function setPaint(mode){if(modelModule)modelModule.paintJ16(root,mode);document.getElementById('paint').value=mode;document.getElementById('zones').hidden=mode!=='zones'||q.get('hud')==='0';root?.traverse(o=>{if(o.isMesh)o.material.wireframe=document.getElementById('wire').checked;});render();}
+try{
+ if(q.get('source')==='1')root=(await new GLTFLoader().loadAsync('../work/j16/j11-reference.glb')).scene;
+ else{modelModule=await import('../src/visual/J16Model.js');root=await modelModule.loadJ16Model();}
+ scene.add(root);root.updateMatrixWorld(true);
+ root.traverse(o=>{if(o.isMesh){o.userData.initialMaterial=o.material;}});
+ let triangles=0,meshes=0;root.traverse(o=>{if(o.isMesh){triangles+=(o.geometry.index?.count||o.geometry.attributes.position.count)/3;meshes++;}});
+ document.getElementById('stats').textContent=`${triangles.toLocaleString()} triangles · ${meshes} meshes · 机长 21.95 m / 翼展 14.70 m`;
+ if(q.get('hud')==='0'){document.querySelector('header').hidden=true;document.getElementById('controls').hidden=true;document.getElementById('part').hidden=true;}
+ grid.visible=q.get('grid')!=='0';
+ if(modelModule&&(q.get('paint')||'weathered')==='weathered')await modelModule.whenJ16SkinReady();
+ setPaint(q.get('paint')||'weathered');setState({gear:Number(q.get('gear')??1)});setView(q.get('view')||'beauty');
+ if(modelModule){systems=new J16Systems(root,scene);await systems.ready;setState({throttle:Number(q.get('throttle')??0)});}
+ const loadoutSelect=document.getElementById('loadout');for(const [id,c]of Object.entries(J16_LOADOUTS)){const option=document.createElement('option');option.value=id;option.textContent=c.label;loadoutSelect.appendChild(option);}
+ setLoadout(q.get('loadout')||'clean');loadoutSelect.onchange=e=>setLoadout(e.target.value);
+ for(const s of J16_STATIONS)document.getElementById('launchStation').add(new Option(s.label,s.id));document.getElementById('launchStation').value='LI';
+ window.__J16_PREVIEW__={root,scene,renderer,systems,audio,get camera(){return camera;},get paused(){return paused;},set paused(value){paused=value;},state,setState,setPaint,setView,setLoadout,render,launchMissile,stats:{triangles,meshes}};window.__READY__=true;
+}catch(error){document.getElementById('error').textContent=error.message;console.error(error);}
+for(const key of Object.keys(state))document.getElementById(key).oninput=e=>setState({[key]:Number(e.target.value)});
+document.getElementById('view').onchange=e=>setView(e.target.value);document.getElementById('paint').onchange=e=>setPaint(e.target.value);
+document.getElementById('wire').onchange=e=>{root.traverse(o=>{if(o.isMesh)o.material.wireframe=e.target.checked;});render();};
+document.getElementById('reset').onclick=()=>{systems?.fireGun(false);audio.gunFiring(false);systems?.resetLaunches();setState(defaults);};
+document.getElementById('pause').onclick=e=>{paused=!paused;e.target.textContent=paused?'继续动画':'暂停动画';};
+function launchMissile(stationId=document.getElementById('launchStation').value){const shot=systems?.launch(stationId);if(shot){audio.missileLaunch();document.getElementById('systemStatus').textContent=shot.id+' 已离架';}else document.getElementById('systemStatus').textContent='该挂点无可发射导弹';return !!shot;}
+document.getElementById('launch').onclick=()=>{if(launchMissile())setView('launch');};
+const stopGun=()=>{systems?.fireGun(false);audio.gunFiring(false);};
+document.getElementById('gun').onpointerdown=e=>{systems?.fireGun(true);audio.gunFiring(true);e.target.setPointerCapture(e.pointerId);setView('gun');};
+for(const event of ['pointerup','pointercancel','lostpointercapture'])document.getElementById('gun').addEventListener(event,stopGun);
+document.getElementById('audio').onclick=async()=>{audio.init();audio.resume();await audio._externalPromise;document.getElementById('audio').textContent='声音已启用';document.getElementById('systemStatus').textContent=`本机WT音效 ${Object.keys(audio.samples).length} 段已就绪`;};
+addEventListener('blur',stopGun);document.addEventListener('visibilitychange',()=>{if(document.hidden){stopGun();audio.setMuted(true);}else audio.setMuted(false);});
+let previousTime=performance.now();
+function frame(t){const dt=Math.min(.05,(t-previousTime)/1000);previousTime=t;if(systems){systems.update(paused?0:dt*Number(document.getElementById('simSpeed').value),state);audio.update(dt,{spool:Math.min(1,state.throttle),afterburner:Math.max(0,(state.throttle-1)/.1),gunFiring:systems.gunFiring&&!paused,gunRate:30,tas:0,altitude:0});render();}requestAnimationFrame(frame);}requestAnimationFrame(frame);
+renderer.domElement.onpointerdown=e=>{drag={x:e.clientX,y:e.clientY,initialX:e.clientX,initialY:e.clientY};renderer.domElement.setPointerCapture(e.pointerId);};
+renderer.domElement.onpointermove=e=>{if(!drag)return;const s=new T.Spherical().setFromVector3(camera.position.clone().sub(target));s.theta-=(e.clientX-drag.x)*.006;s.phi=T.MathUtils.clamp(s.phi+(e.clientY-drag.y)*.006,.025,Math.PI-.025);camera.up.set(0,1,0);camera.position.copy(target).add(new T.Vector3().setFromSpherical(s));camera.lookAt(target);drag.x=e.clientX;drag.y=e.clientY;render();};
+renderer.domElement.onpointerup=e=>{if(drag&&Math.hypot(e.clientX-drag.initialX,e.clientY-drag.initialY)<4){const ray=new T.Raycaster();ray.setFromCamera(new T.Vector2(e.clientX/innerWidth*2-1,1-e.clientY/innerHeight*2),camera);const hit=ray.intersectObject(root,true)[0];document.getElementById('part').textContent=hit?hit.object.name+'\n'+JSON.stringify(hit.object.userData.exportExtras||hit.object.userData,null,1).slice(0,300):'';}drag=null;};
+renderer.domElement.onwheel=e=>{e.preventDefault();if(camera.isOrthographicCamera){camera.zoom=T.MathUtils.clamp(camera.zoom*Math.exp(-e.deltaY*.001),.4,5);camera.updateProjectionMatrix();render();return;}const offset=camera.position.clone().sub(target).multiplyScalar(Math.exp(e.deltaY*.001));offset.setLength(T.MathUtils.clamp(offset.length(),view==='reference'?15:1.5,view==='reference'?180:65));camera.position.copy(target).add(offset);camera.lookAt(target);render();};
+addEventListener('resize',()=>{renderer.setSize(innerWidth,innerHeight);if(camera.isOrthographicCamera)profileFrustum();else{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();}render();});
+</script></html>
+
+
+

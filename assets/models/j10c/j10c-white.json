@@ -1,0 +1,183 @@
+{
+  "triangles": 108591,
+  "meshes": 164,
+  "nodes": 219,
+  "materials": 18,
+  "bytes": 4070776,
+  "dimensions": {
+    "length": 17.05,
+    "wingspan": 9.73,
+    "groundHeight": 5.8,
+    "note": "CAD scale; ground clearance measured on photos. Public figures: ~16.4-16.9 m long, 9.75 m span, 4.78-5.5 m high"
+  },
+  "gear": {
+    "noseBay": {
+      "halfWidth": 0.3,
+      "z0": -3,
+      "z1": -1.3,
+      "skinY": -1.125,
+      "roof": -0.7
+    },
+    "nosePivot": [
+      0,
+      -0.92,
+      -2.85
+    ],
+    "noseAxle": [
+      0,
+      -2.09,
+      -3.05
+    ],
+    "noseWheel": {
+      "radius": 0.21,
+      "width": 0.12,
+      "track": 0.14
+    },
+    "mainBay": {
+      "x0": 0.255,
+      "x1": 0.8,
+      "z0": -0.12,
+      "z1": 1.86,
+      "wellOuter": 1.02,
+      "roof": -0.62
+    },
+    "mainPivot": {
+      "x": 0.72,
+      "y": -0.9,
+      "z": 1.6
+    },
+    "mainStubEnd": 1,
+    "mainStub": 0.15,
+    "mainWheel": {
+      "radius": 0.29,
+      "width": 0.17
+    },
+    "mainDoorLine": [
+      [
+        0.255,
+        -1.162
+      ],
+      [
+        0.5,
+        -1.11
+      ],
+      [
+        0.66,
+        -1.035
+      ],
+      [
+        0.74,
+        -0.96
+      ],
+      [
+        0.8,
+        -0.92
+      ]
+    ]
+  },
+  "bounds": {
+    "min": [
+      -4.864999771118164,
+      -2.299999961853027,
+      -8.52924919128418
+    ],
+    "max": [
+      4.864999771118164,
+      3.4977340698242188,
+      8.525317192077637
+    ],
+    "size": [
+      9.729999542236328,
+      5.797734031677246,
+      17.054566383361816
+    ]
+  },
+  "movableAssemblies": {
+    "canopy": [
+      "canopy"
+    ],
+    "canard": [
+      "canard_R",
+      "canard_L"
+    ],
+    "probe": [
+      "refueling_probe"
+    ],
+    "probe-door": [
+      "refueling_probe_door"
+    ],
+    "gear-fold": [
+      "nose_gear_leg",
+      "main_gear_leg_R",
+      "main_gear_leg_L"
+    ],
+    "shock": [
+      "nose_gear_shock",
+      "main_gear_shock_R",
+      "main_gear_shock_L"
+    ],
+    "wheel-carrier": [
+      "nose_gear_wheels",
+      "main_gear_wheel_carrier_R",
+      "main_gear_wheel_carrier_L"
+    ],
+    "wheel": [
+      "nose_wheel_R",
+      "nose_wheel_L",
+      "main_wheel_R",
+      "main_wheel_L"
+    ],
+    "gear-door": [
+      "nose_gear_door_R",
+      "nose_gear_door_L",
+      "main_gear_door_R",
+      "main_gear_door_L"
+    ],
+    "slat": [
+      "leading_edge_flap_R_inner",
+      "leading_edge_flap_R_outer",
+      "leading_edge_flap_L_inner",
+      "leading_edge_flap_L_outer"
+    ],
+    "elevon": [
+      "elevon_R_inner",
+      "elevon_R_outer",
+      "elevon_L_inner",
+      "elevon_L_outer"
+    ],
+    "rudder": [
+      "rudder"
+    ],
+    "airbrake": [
+      "airbrake_R",
+      "airbrake_L"
+    ],
+    "parachute-door": [
+      "parachute_door_R",
+      "parachute_door_L"
+    ],
+    "nozzle-petal": [
+      "nozzle_petal_00",
+      "nozzle_petal_01",
+      "nozzle_petal_02",
+      "nozzle_petal_03",
+      "nozzle_petal_04",
+      "nozzle_petal_05",
+      "nozzle_petal_06",
+      "nozzle_petal_07",
+      "nozzle_petal_08",
+      "nozzle_petal_09",
+      "nozzle_petal_10",
+      "nozzle_petal_11",
+      "nozzle_petal_12",
+      "nozzle_petal_13",
+      "nozzle_petal_14",
+      "nozzle_petal_15"
+    ]
+  },
+  "source": "assets/models/j10c/J10C.STEP (1:10 surface model) via SolidWorks tessellation; CAD shell plus rebuilt control surfaces, cockpit, gear and nozzle",
+  "units": "metres",
+  "forward": "-Z",
+  "stage": "white model, no stores, separate articulated parts",
+  "triangleBudget": "kept below the F-16CM runtime GLB (about 189k triangles)"
+}

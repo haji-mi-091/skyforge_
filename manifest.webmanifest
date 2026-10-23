@@ -1,0 +1,20 @@
+{
+  "name": "SKYFORGE / 超视距空战",
+  "short_name": "SKYFORGE",
+  "description": "Browser 6-DOF jet flight engine and air-combat testbed",
+  "start_url": "./?app=1",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "landscape",
+  "background_color": "#071013",
+  "theme_color": "#071013",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

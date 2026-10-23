@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="icon" href="data:," />
+<title>F-16CM gear door verification</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#0b0f12;color:#cde9dc}
+  #status{position:fixed;left:14px;top:12px;font:12px/1.5 Consolas,monospace;
+    color:#a9d9c6;background:rgba(8,18,17,.7);padding:7px 10px;z-index:2;
+    white-space:pre}
+</style>
+</head>
+<body>
+<div id="status">loading…</div>
+<div id="controls" style="position:fixed;bottom:15px;left:50%;transform:translateX(-50%);z-index:3;background:#10201ddd;padding:10px;color:#cde9dc;font:14px sans-serif;white-space:nowrap">
+  <button id="play">播放收放</button> 起落架 <input id="gearSlider" type="range" min="0" max="1" step="0.001" style="width:260px;vertical-align:middle"> <span id="gearValue"></span>
+</div>
+<script type="module">
+/**
+ * Deterministic gear-door verification harness.
+ *
+ *   /tools/gear-preview.html?gear=0&view=door-below
+ *
+ * Renders one frame of the real JetModel (F-16CM Block 52 CAD) with a fixed
+ * camera so nose-gear-door state can be screenshotted from below the nose.
+ * Query params:
+ *   gear      0 = retracted, 1 = extended (decimals allowed)
+ *   view      door-below | door-front-below | door-side-left | door-side-right |
+ *             nose-below | nose-bow | belly | side-left | side-right | rear-high
+ *   flaps 0..1   airbrake 0..1
+ *   only      'cad' hides every non-CAD node (procedural airframe, stores)
+ *   axes      1 draws world axes at the door-bay centre (X red, Y green, Z blue)
+ *   grid      1 draws a ground reference
+ *   range     distance override for the derived door views
+ */
+import * as THREE from '../vendor/three.module.js';
+import { JetModel } from '../src/visual/JetModel.js';
+import { F16CM_BLOCK52 } from '../src/data/aircraft.js';
+
+const params = new URLSearchParams(location.search);
+const num = (key, fallback) => {
+  const raw = params.get(key);
+  return raw === null ? fallback : Number(raw);
+};
+let gear = num('gear', 1);
+const flaps = num('flaps', 0);
+const airbrake = num('airbrake', 0);
+const view = params.get('view') || 'door-below';
+const status = document.getElementById('status');
+if (params.get('hud') === '0') { status.style.display = 'none'; document.getElementById('controls').style.display = params.get('controls') === '1' ? 'block' : 'none'; }
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0b0f12);
+const camera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.05, 400);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(1);
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
+document.body.appendChild(renderer.domElement);
+
+scene.add(new THREE.HemisphereLight(0xdff6ff, 0x1a2320, 1.0));
+// Three keys so no belly face is left unlit.
+for (const [pos, intensity, colour] of [
+  [[8, 10, 10], 2.2, 0xffe8cc],
+  [[-10, 6, -8], 1.4, 0x84c8ff],
+  [[0, -16, -2], 2.2, 0xbfe6ff],
+]) {
+  const light = new THREE.DirectionalLight(colour, intensity);
+  light.position.set(...pos);
+  scene.add(light);
+}
+
+if (params.get('grid') === '1') {
+  const grid = new THREE.GridHelper(40, 20, 0x2b4a41, 0x1a2b26);
+  grid.position.y = -2.7;
+  scene.add(grid);
+}
+
+// The CAD URL in the aircraft data is relative to the project root, but
+// GLTFLoader resolves it against the document base, so rebase it for /tools/.
+const config = structuredClone(F16CM_BLOCK52);
+config.visual.cadModel = '../'+F16CM_BLOCK52.visual.cadModel;
+const jet = new JetModel(config, { isPlayer: true });
+scene.add(jet.group);
+
+const flight = {
+  position: new THREE.Vector3(),
+  orientation: new THREE.Quaternion(),
+  control: { surfaces: { aileron: 0, elevator: 0, rudder: 0 } },
+};
+const systems = { gear, flaps, airbrake };
+
+function doorVertexBox(door) {
+  const box = new THREE.Box3();
+  for (const part of door.parts) {
+    const pos = part.mesh.geometry.attributes.position;
+    for (let i = 0; i < pos.count; i++) {
+      box.expandByPoint(new THREE.Vector3().fromBufferAttribute(pos, i)
+        .applyMatrix4(part.mesh.matrixWorld));
+    }
+  }
+  return box;
+}
+
+function frontDoorBox() {
+  const box = new THREE.Box3();
+  for (const door of jet.cadGearDoors) {
+    if (door.kind !== 'front') continue;
+    box.union(doorVertexBox(door));
+  }
+  return box;
+}
+
+function configureCamera(target, direction) {
+  const range = num('range', 0);
+  const offset = direction.clone().setLength(range > 0 ? range : direction.length());
+  camera.position.copy(target).add(offset);
+  camera.lookAt(target);
+}
+
+function setupView() {
+  if (params.get('only') === 'cad') {
+    for (const child of jet.group.children) {
+      if (child !== jet.cadGroup) child.visible = false;
+    }
+  }
+  const doorBox = frontDoorBox();
+  const doorCenter = doorBox.getCenter(new THREE.Vector3());
+  const doorSize = doorBox.getSize(new THREE.Vector3());
+  if (params.get('axes') === '1') {
+    const len = Math.max(doorSize.x, doorSize.z) * 1.6;
+    const axes = [
+      [0xff3344, new THREE.Vector3(1, 0, 0)],
+      [0x33ff88, new THREE.Vector3(0, 1, 0)],
+      [0x3399ff, new THREE.Vector3(0, 0, 1)],
+    ];
+    for (const [colour, dir] of axes) {
+      const geo = new THREE.BufferGeometry().setFromPoints([
+        doorCenter.clone(),
+        doorCenter.clone().addScaledVector(dir, len),
+      ]);
+      scene.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color: colour })));
+    }
+  }
+  const span = Math.max(doorSize.x, doorSize.z, 0.5);
+  const dist = span * 2.1;
+  const presets = {
+    // A pure straight-down view leaves lookAt() degenerate (view direction
+    // parallel to the up vector), so bias every bel-ow view slightly along Z.
+    'door-below': [doorCenter, new THREE.Vector3(0, -dist * 1.55, -dist * 0.18)],
+    'door-front-below': [doorCenter, new THREE.Vector3(0, -dist * 1.2, -dist * 1.1)],
+    'door-rear-below': [doorCenter, new THREE.Vector3(0, -dist * 1.2, dist * 1.1)],
+    'door-side-left': [doorCenter, new THREE.Vector3(-dist * 1.7, -dist * 0.30, -dist * 0.1)],
+    'door-side-right': [doorCenter, new THREE.Vector3(dist * 1.7, -dist * 0.30, -dist * 0.1)],
+    'nose-below': [new THREE.Vector3(0, -1.1, -1.7),
+      new THREE.Vector3(0, -5.2, -3.4)],
+    'nose-bow': [new THREE.Vector3(0, -1.1, -1.7),
+      new THREE.Vector3(0, -2.2, -8.2)],
+    'gear-front': [new THREE.Vector3(0, -1, -0.3), new THREE.Vector3(0, -2.2, -8.5)],
+    'gear-side': [new THREE.Vector3(0, -1, -0.35), new THREE.Vector3(7, -2.8, 0)],
+    'main-right': [new THREE.Vector3(0.6, -1.25, 1.4), new THREE.Vector3(2.8, -2.1, -1.4)],
+    'main-below': [new THREE.Vector3(0, -1.1, 1.4), new THREE.Vector3(0, -4, -1.0)],
+    belly: [new THREE.Vector3(0, -0.9, 0.2), new THREE.Vector3(0, -15, 0.3)],
+    'side-left': [new THREE.Vector3(0, -0.5, -1.6),
+      new THREE.Vector3(-10, -1.4, -1.7)],
+    'side-right': [new THREE.Vector3(0, -0.5, -1.6),
+      new THREE.Vector3(10, -1.4, -1.7)],
+    'rear-high': [new THREE.Vector3(0, 0, 0), new THREE.Vector3(7.5, 6.5, 13)],
+  };
+  const [target, offset] = presets[view] || presets['door-below'];
+  configureCamera(target, offset);
+}
+
+function applyState() {
+  jet._updateCadRig(flight, systems);
+  jet._applyCadVisibility();
+  jet.group.updateMatrixWorld(true);
+}
+
+// Optional override for comparing candidate nose-door poses at a fixed gear
+// state. 'auto' keeps whatever _updateCadRig produced.
+const doorMode = params.get('doorMode') || 'auto';
+// doorAngle=<deg> forces both nose doors to hinge through that angle, using the
+// same sign convention as JetModel (positive = closing rotation).
+const doorAngleDeg = params.has('doorAngle') ? Number(params.get('doorAngle')) : null;
+function applyDoorMode() {
+  if (doorMode === 'auto' && doorAngleDeg === null) return;
+  for (const door of jet.cadGearDoors) {
+    if (door.kind !== 'front') continue;
+    let angle = 0;
+    if (doorAngleDeg !== null) {
+      angle = -door.side * doorAngleDeg * Math.PI / 180;
+    } else if (doorMode === 'down') {
+      angle = 0;
+    } else if (doorMode === 'up') {
+      angle = -door.side * door.closeAngle;
+    } else if (doorMode === 'half') {
+      angle = -door.side * door.closeAngle * 0.5;
+    }
+    jet._setCadHingeAngle(door, angle);
+  }
+  jet.group.updateMatrixWorld(true);
+}
+
+// Transform actual vertices: rotating an axis-aligned bounding box includes
+// empty corners and greatly overstates the height of these slanted panels.
+function sampleDoors() {
+  jet.group.updateMatrixWorld(true);
+  return jet.cadGearDoors.map((door) => {
+    const bounds = doorVertexBox(door);
+    const box = new THREE.Box3();
+    for (const part of door.parts) {
+      box.expandByObject(part.mesh);
+    }
+    const pack = (b) => ({ min: b.min.toArray(), max: b.max.toArray() });
+    return {
+      kind: door.kind, side: door.side, angle: door.angle,
+      visible: door.parts.every((part) => part.mesh.visible),
+      hinge: door.hinge.clone().applyMatrix4(jet.cadGroup.matrixWorld).toArray(),
+      bounds: pack(bounds), box: pack(box),
+    };
+  });
+}
+
+function sampleGear() {
+  jet.group.updateMatrixWorld(true);
+  return jet.cadGearRigs.map(rig => {
+    const bounds = doorVertexBox({ parts: [{ mesh: rig.wheel }] });
+    return { kind: rig.kind, side: rig.side, alignment: rig.alignment, lift: rig.lift,
+      visible: rig.wheel.visible && rig.group.visible,
+      center: rig.wheelCenter.toArray(), matrix: rig.wheel.matrix.toArray(),
+      bounds: { min: bounds.min.toArray(), max: bounds.max.toArray() },
+      actuators: [rig.upper, rig.lower].map(a => ({ length: a.length,
+        stageLength: a.stageLength, stages: a.stages.length })),
+    };
+  });
+}
+
+function report() {
+  const line = (label, box) => ((box && !box.isEmpty())
+  ? `${label} x[${box.min.x.toFixed(3)},${box.max.x.toFixed(3)}] ` +
+    `y[${box.min.y.toFixed(3)},${box.max.y.toFixed(3)}] ` +
+    `z[${box.min.z.toFixed(3)},${box.max.z.toFixed(3)}]`
+  : `${label}: empty`);
+  const lines = [`gear=${gear} view=${view}`];
+  for (const door of jet.cadGearDoors) {
+    const box = new THREE.Box3();
+    box.union(doorVertexBox(door));
+    const label = `door ${door.kind}${door.side < 0 ? 'L' : 'R'}`;
+    const shown = door.parts.some((part) => part.mesh.visible);
+    lines.push(`${line(label, box)}${shown ? '' : ' [hidden]'}`);
+    if (door.kind === 'front') {
+      const size = box.getSize(new THREE.Vector3());
+      lines.push(`   front size ${size.x.toFixed(3)} x ${size.y.toFixed(3)} ` +
+        `x ${size.z.toFixed(3)}  thin=${'XYZ'[size.toArray().indexOf(
+          Math.min(...size.toArray()))]}`);
+    }
+  }
+  const gearBox = new THREE.Box3();
+  for (const rig of jet.cadGearRigs) {
+    if (rig.kind !== 'front') continue;
+    for (const part of rig.parts) gearBox.expandByObject(part.mesh);
+  }
+  lines.push(line('nose gear', gearBox));
+  return lines.join('\n');
+}
+
+// Debug visualisation, both opt-in:
+//   tint=1  nose doors magenta, main doors cyan
+//   xray=1  draw the rest of the airframe translucent so hidden geometry shows
+const tint = params.get('tint') === '1';
+const xray = params.get('xray') === '1';
+// hideDoors=1 removes the nose doors entirely, so a diff against a normal
+// render shows exactly which pixels they occupy.
+const hideDoors = params.get('hideDoors') === '1';
+function applyDebugMaterials() {
+  if (hideDoors) {
+    for (const door of jet.cadGearDoors) {
+      if (door.kind !== 'front') continue;
+      for (const part of door.parts) part.mesh.visible = false;
+    }
+  }
+  if (!tint && !xray) return;
+  const doorMat = (colour) => new THREE.MeshBasicMaterial({
+    color: colour, side: THREE.DoubleSide,
+    depthWrite: true, toneMapped: false,
+  });
+  const noseMat = doorMat(0xff2d6f);
+  const mainMat = doorMat(0x27d0ff);
+  for (const door of jet.cadGearDoors) {
+    const material = door.kind === 'front' ? noseMat : mainMat;
+    for (const part of door.parts) part.mesh.material = material;
+  }
+  if (xray) {
+    const ghost = new THREE.MeshBasicMaterial({
+      color: 0x9fc4d8, transparent: true, opacity: 0.14,
+      depthWrite: false, side: THREE.DoubleSide, toneMapped: false,
+    });
+    jet.cadGroup.traverse((object) => {
+      if (!object.isMesh || !object.visible) return;
+      if (object.material === noseMat || object.material === mainMat) return;
+      object.material = ghost;
+      object.castShadow = false;
+    });
+  }
+}
+
+let ready = false;
+let playing = params.get('animate') === '1';
+let playStart = performance.now();
+const slider = document.getElementById('gearSlider');
+const play = document.getElementById('play');
+play.textContent = playing ? '暂停' : '播放收放';
+slider.value = gear;
+play.onclick = () => { playing = !playing; playStart = performance.now() - (1 - gear) * 6000; play.textContent = playing ? '暂停' : '播放收放'; };
+slider.oninput = () => { playing = false; play.textContent = '播放收放'; window.__GEAR_PREVIEW__?.setGear(Number(slider.value)); };
+function tick() {
+  requestAnimationFrame(tick);
+  if (!ready && jet.cadGroup) {
+    ready = true;
+    try {
+      applyState();
+      applyDoorMode();
+      applyDebugMaterials();
+      setupView();
+      const text = report();
+      status.textContent = text;
+      window.__GEAR_PREVIEW__ = {
+        text,
+        sample: sampleDoors,
+        sampleGear,
+        setGear(value) {
+          gear = systems.gear = value;
+          applyState();
+          status.textContent = report();
+          renderer.render(scene, camera);
+          return sampleDoors();
+        },
+      };
+    } catch (error) {
+      status.textContent = `ERROR: ${error?.stack || error}`;
+      window.__GEAR_PREVIEW__ = { text: `ERROR ${error}\n${error?.stack || ''}` };
+    }
+    renderer.render(scene, camera);
+    window.__READY__ = true;
+    return;
+  }
+  if (ready && playing) {
+    const phase = (performance.now() - playStart) / 6000 % 2;
+    window.__GEAR_PREVIEW__.setGear(Math.abs(1 - phase));
+    slider.value = gear;
+  }
+  document.getElementById('gearValue').textContent = gear.toFixed(2);
+  renderer.render(scene, camera);
+}
+tick();
+
+addEventListener('error', (event) => {
+  status.textContent = `WINDOW ERROR: ${event.message}\n${event.error?.stack || ''}`;
+});
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>

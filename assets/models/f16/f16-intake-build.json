@@ -1,0 +1,18 @@
+{
+  "triangles": 190129,
+  "meshes": 86,
+  "nodes": 87,
+  "materials": 7,
+  "bytes": 3553552,
+  "offlineFitMs": 8485.646999999999,
+  "replacement": {
+    "retainedExteriorTriangles": 81423,
+    "replacedInteriorTriangles": 1785
+  },
+  "linerTriangles": 1376,
+  "linerVertices": 759,
+  "radialSegments": 32,
+  "sections": 22,
+  "bodyVerticesBefore": 84782,
+  "bodyVerticesAfter": 42171
+}

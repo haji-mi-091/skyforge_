@@ -1,0 +1,101 @@
+{
+  "note": "Decoded with the FMOD runtime of the local War Thunder install; banks are read-only inputs. War Thunder has no J-10-specific engine recording: the AL-31F (Su-27) set stands in for the J-10C AL-31FN / WS-10 family. Type 23-3 cannon = GSh-23 clips.",
+  "sources": [
+    {
+      "source": "D:/SteamLibrary/steamapps/common/War Thunder/sound/aircraft_engines.assets.bank",
+      "sourceBankSha256": "2907250775f0690f2b62191dc89f8132e4948385b2141c09c08fce3efb9d49fe",
+      "index": 1202,
+      "sample": "idle_su_27_exterior",
+      "file": "1202-idle_su_27_exterior.wav",
+      "rate": 44100,
+      "channels": 2,
+      "bits": 16,
+      "seconds": 8.0,
+      "sha256": "c423c25286dc65e1eacde7aac3e98bab1f38d9559d83ae6309982aac684b8bfc"
+    },
+    {
+      "source": "D:/SteamLibrary/steamapps/common/War Thunder/sound/aircraft_engines.assets.bank",
+      "sourceBankSha256": "2907250775f0690f2b62191dc89f8132e4948385b2141c09c08fce3efb9d49fe",
+      "index": 523,
+      "sample": "max_su_27_exterior",
+      "file": "0523-max_su_27_exterior.wav",
+      "rate": 48000,
+      "channels": 2,
+      "bits": 16,
+      "seconds": 8.0,
+      "sha256": "1d11ca2c3b72bd2ac6555a28b1d5b7c5aee152006d0c2040252cdf6a815059b0"
+    },
+    {
+      "source": "D:/SteamLibrary/steamapps/common/War Thunder/sound/aircraft_engines.assets.bank",
+      "sourceBankSha256": "2907250775f0690f2b62191dc89f8132e4948385b2141c09c08fce3efb9d49fe",
+      "index": 386,
+      "sample": "afterburner_su_27_exterior",
+      "file": "0386-afterburner_su_27_exterior.wav",
+      "rate": 48000,
+      "channels": 2,
+      "bits": 16,
+      "seconds": 8.0,
+      "sha256": "6b0ee20d07241a5de9cdfdea5e71bb985bde800bb3d7e62bd7010e0ce1756b55"
+    },
+    {
+      "source": "D:/SteamLibrary/steamapps/common/War Thunder/sound/aircraft_engines.assets.bank",
+      "sourceBankSha256": "2907250775f0690f2b62191dc89f8132e4948385b2141c09c08fce3efb9d49fe",
+      "index": 780,
+      "sample": "max_su_27_cockpit_l",
+      "file": "0780-max_su_27_cockpit_l.wav",
+      "rate": 44100,
+      "channels": 1,
+      "bits": 16,
+      "seconds": 8.0,
+      "sha256": "0306af9bff77eb17fefb61431edd32ee541fd713719e61f500bc996195d15e79"
+    },
+    {
+      "source": "D:/SteamLibrary/steamapps/common/War Thunder/sound/aircraft_engines.assets.bank",
+      "sourceBankSha256": "2907250775f0690f2b62191dc89f8132e4948385b2141c09c08fce3efb9d49fe",
+      "index": 841,
+      "sample": "max_su_27_cockpit_r",
+      "file": "0841-max_su_27_cockpit_r.wav",
+      "rate": 44100,
+      "channels": 1,
+      "bits": 16,
+      "seconds": 8.0,
+      "sha256": "ea84291887ff09c65b6b2d11c75d791e60186bda79a9d20c411d36eb0f46dcc4"
+    },
+    {
+      "source": "D:/SteamLibrary/steamapps/common/War Thunder/sound/aircraft_guns.assets.bank",
+      "sourceBankSha256": "950f96fa80e335b923a7dd714c39a825836d85fe3b9e8edca13a739418870f05",
+      "index": 38,
+      "sample": "gsh_23_close-001",
+      "file": "0038-gsh_23_close-001.wav",
+      "rate": 48000,
+      "channels": 2,
+      "bits": 16,
+      "seconds": 0.06095833333333334,
+      "sha256": "3f63398578c04af2062d4d9a18e6e3a7757eb72d0cf2b229e2235dbc93729426"
+    },
+    {
+      "source": "D:/SteamLibrary/steamapps/common/War Thunder/sound/aircraft_guns.assets.bank",
+      "sourceBankSha256": "950f96fa80e335b923a7dd714c39a825836d85fe3b9e8edca13a739418870f05",
+      "index": 39,
+      "sample": "gsh_23_first_close-001",
+      "file": "0039-gsh_23_first_close-001.wav",
+      "rate": 48000,
+      "channels": 2,
+      "bits": 16,
+      "seconds": 0.11897916666666666,
+      "sha256": "0fee81847c615250f9c95087c2a061ab3ed381dcf45b5984d4cb848aec5d72ce"
+    },
+    {
+      "source": "D:/SteamLibrary/steamapps/common/War Thunder/sound/aircraft_guns.assets.bank",
+      "sourceBankSha256": "950f96fa80e335b923a7dd714c39a825836d85fe3b9e8edca13a739418870f05",
+      "index": 386,
+      "sample": "gsh_23_last_close-001",
+      "file": "0386-gsh_23_last_close-001.wav",
+      "rate": 44100,
+      "channels": 2,
+      "bits": 16,
+      "seconds": 0.5,
+      "sha256": "cb3af1382242fef01446a304a9b9e84a3d80dff26538e6a73bb89623164f9a9c"
+    }
+  ]
+}

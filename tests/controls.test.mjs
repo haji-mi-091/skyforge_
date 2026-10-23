@@ -1,0 +1,68 @@
+import assert from 'node:assert/strict';
+import {CONTROL_ACTIONS,normalizeBindings,activeControlActions,formatBinding} from '../src/data/controls.js';
+import {Input} from '../src/core/Input.js';
+
+const defaults = normalizeBindings();
+assert.equal(CONTROL_ACTIONS.length, 33);
+assert.equal(new Set(CONTROL_ACTIONS.map((action) => action.id)).size, 33);
+for (const action of CONTROL_ACTIONS) for (const chord of defaults[action.id])
+  assert.ok(activeControlActions(defaults, new Set(chord)).has(action.id), action.id + ' default');
+assert.deepEqual([...activeControlActions(defaults, new Set(['Alt','KeyF']))], ['takeoffFlaps']);
+const concurrent = activeControlActions(defaults, new Set(['Shift','KeyW','KeyA']));
+assert.ok(concurrent.has('throttleUp') && concurrent.has('pitchDown') && concurrent.has('rollLeft'));
+const custom = normalizeBindings({gear:[['ShiftRight','KeyU','ControlLeft']],airbrake:[['Control','Shift','KeyU']],
+  pause:[['Enter']],help:[['Escape']],gunFire:[['KeyI']],map:[['KeyW','KeyE']]});
+assert.deepEqual(custom.gear, [['Control','Shift','KeyU']]);
+const duplicates = activeControlActions(custom, new Set(['Control','Shift','KeyU']));
+assert.ok(duplicates.has('gear') && duplicates.has('airbrake'));
+assert.equal(duplicates.has('throttleUp'), false, 'complete chord suppresses its single-key subset');
+assert.equal(formatBinding(custom,'gear'), 'Ctrl + Shift + U');
+assert.deepEqual(normalizeBindings(JSON.parse(JSON.stringify(custom))), custom, 'round trip');
+assert.deepEqual(normalizeBindings({gear:[['Unidentified']],flaps:'invalid',help:[[]]}), defaults);
+assert.deepEqual(normalizeBindings(null), defaults);
+custom.gear[0][0] = 'KeyB';
+assert.deepEqual(normalizeBindings().gear, [['KeyG']], 'defaults remain independent');
+
+globalThis.window = new EventTarget();
+window.innerWidth = 1280; window.innerHeight = 800;
+globalThis.document = new EventTarget();
+document.pointerLockElement = null;
+const input = new Input(new EventTarget());
+input.setEnabled(true);
+const key = (type, code, repeat = false) => {
+  const event = new Event(type, {cancelable:true});
+  Object.assign(event, {code,repeat});
+  window.dispatchEvent(event);
+  return event;
+};
+key('keydown','AltLeft');key('keydown','KeyF');key('keyup','KeyF');key('keyup','AltLeft');
+assert.ok(input.getPressedActions().has('takeoffFlaps'), 'fast tap survives keyup before frame');
+assert.equal(input.getPressedActions().has('flaps'), false);
+input.endFrame();assert.equal(input.getPressedActions().size,0);
+key('keydown','KeyF');key('keydown','AltLeft');key('keyup','KeyF');key('keyup','AltLeft');
+assert.ok(input.getPressedActions().has('takeoffFlaps'),'chord can complete with modifier pressed last');
+assert.equal(input.getPressedActions().has('flaps'),false,'completed chord suppresses earlier subset in same frame');
+input.endFrame();
+key('keydown','KeyG');assert.ok(input.getPressedActions().has('gear'));input.endFrame();
+key('keydown','KeyG',true);assert.equal(input.getPressedActions().has('gear'),false,'no repeat toggles');
+key('keyup','KeyG');
+input.setBindings({gear:[['Control','Shift','KeyU']],airbrake:[['Control','Shift','KeyU']],gunFire:[['KeyI']]});
+key('keydown','ControlRight');key('keydown','ShiftLeft');key('keydown','KeyU');
+assert.ok(input.getPressedActions().has('gear') && input.getPressedActions().has('airbrake'));
+assert.ok(input.isActionDown('gear'));key('keyup','KeyU');assert.equal(input.isActionDown('gear'),false);
+input.clear();key('keydown','KeyI');assert.ok(input.isActionDown('gunFire'));
+input.setBindings();assert.equal(input.isActionDown('gunFire'),false,'new binding clears held state');
+input.pressed.add('Space');assert.ok(input.getPressedActions().has('weaponFire'),'existing debug pressed entry works');
+input.clear();key('keydown','ShiftRight');key('keydown','KeyW');key('keydown','KeyA');
+assert.ok(input.isActionDown('throttleUp') && input.isActionDown('pitchDown') && input.isActionDown('rollLeft'));
+window.dispatchEvent(new Event('blur'));assert.equal(input.getActions().size,0,'blur clears held controls');
+input.setEnabled(false);key('keydown','KeyW');assert.equal(input.getPressedActions().size,0,'UI tracking never queues game actions');
+key('keyup','KeyW');
+input.setBindings({map:[['KeyW','KeyE']]});input.setEnabled(true);
+key('keydown','KeyW');key('keyup','KeyW');key('keydown','KeyE');key('keyup','KeyE');
+assert.equal(input.getPressedActions().has('map'),false,'separate fast taps are not a simultaneous chord');
+assert.ok(input.getPressedActions().has('chaff'));
+input.endFrame();key('keydown','KeyW');key('keydown','KeyE');key('keyup','KeyW');key('keyup','KeyE');
+assert.ok(input.getPressedActions().has('map'),'actual overlapping fast chord survives release');
+assert.equal(input.getPressedActions().has('chaff'),false);
+console.log('PASS: 33 defaults; duplicate and multi-key chords; chord priority; concurrent flight axes; corrupt/legacy settings; fast taps, holds, repeat, remapping, blur, keyboard gun and debug input.');
